@@ -1,0 +1,576 @@
+{
+  "module": "subscription-e2e-cases",
+  "version": "1.0.0",
+  "description": "Language-neutral E2E scenarios for subscription create/change/update scheduled amount behavior.",
+  "sourceOfTruth": {
+    "openapi": "openapi.json",
+    "nodeReference": "packages/waffo-node/test/e2e/subscription-update.e2e.test.ts"
+  },
+  "requirements": {
+    "requiresSandboxCredentials": true,
+    "requiresBrowserAutomation": true,
+    "requiresManagementMockUrl": true,
+    "currency": "HKD",
+    "payMethodType": "CREDITCARD",
+    "scheduledAmountPeriodField": "period",
+    "paymentDetailsFlag": 1,
+    "amountComparison": "Compare numeric value, not decimal scale. Sandbox may return values such as 99.00000000."
+  },
+  "sharedFlow": [
+    "Create a unique subscriptionRequest and merchantSubscriptionId per case.",
+    "Create the subscription through the public SDK API.",
+    "Complete checkout or authorization in the sandbox cashier page.",
+    "Poll subscription inquiry until the subscription is ACTIVE.",
+    "Use subscription manage to fetch managementUrl and open it with mock=true.",
+    "Click the sandbox simulate-next-period success action.",
+    "Call subscription inquiry with paymentDetails=1.",
+    "Assert PaymentDetail.period and PaymentDetail.orderAmount for the target period."
+  ],
+  "fixtures": {
+    "createSubscriptionBase": {
+      "subscriptionRequest": "{{casePrefix}}_{{uniqueSuffix}}",
+      "merchantSubscriptionId": "{{CASE_PREFIX}}_{{uniqueSuffix}}",
+      "currency": "HKD",
+      "amount": "{{amount}}",
+      "userCurrency": "HKD",
+      "productInfo": {
+        "description": "{{casePrefix}} subscription",
+        "periodType": "MONTHLY",
+        "periodInterval": "1",
+        "numberOfPeriod": "12",
+        "scheduledAmounts": "{{scheduledAmounts}}"
+      },
+      "merchantInfo": {
+        "merchantId": "{{merchantId}}"
+      },
+      "userInfo": {
+        "userId": "{{casePrefix}}_user_{{uniqueSuffix}}",
+        "userEmail": "{{casePrefix}}_{{uniqueSuffix}}@test.com",
+        "userTerminal": "WEB",
+        "userFirstName": "E2E",
+        "userLastName": "Subscription"
+      },
+      "goodsInfo": {
+        "goodsId": "{{CASE_PREFIX}}_GOODS",
+        "goodsName": "{{casePrefix}} product",
+        "goodsCategory": "SUBSCRIPTION",
+        "goodsUrl": "https://example.com/{{casePrefix}}",
+        "goodsQuantity": 1
+      },
+      "addressInfo": {
+        "shippingAddress": {
+          "country": "HKG",
+          "city": "Hong Kong",
+          "address1": "1 Test Street",
+          "postalCode": "000000"
+        },
+        "billingAddress": {
+          "country": "HKG",
+          "city": "Hong Kong",
+          "address1": "2 Test Street",
+          "postalCode": "000000"
+        }
+      },
+      "brandInfo": {
+        "cashierDisplayName": "Waffo E2E",
+        "cashierLogoUrl": "https://example.com/logo.png",
+        "cashierProductImageUrl": "https://example.com/product.png"
+      },
+      "paymentInfo": {
+        "productName": "SUBSCRIPTION",
+        "payMethodType": "CREDITCARD"
+      },
+      "requestedAt": "{{nowIso}}",
+      "notifyUrl": "https://httpbin.org/post",
+      "successRedirectUrl": "https://httpbin.org/get?status=success",
+      "failedRedirectUrl": "https://httpbin.org/get?status=failed",
+      "cancelRedirectUrl": "https://httpbin.org/get?status=cancel",
+      "riskData": {
+        "deviceType": "WEB",
+        "deviceId": "{{casePrefix}}_device_{{uniqueSuffix}}",
+        "deviceTokenId": "{{casePrefix}}_token_{{uniqueSuffix}}"
+      },
+      "subscriptionManagementUrl": "https://example.com/subscription/manage",
+      "extendInfo": "{\"testCase\":\"{{casePrefix}}\"}",
+      "orderExpiredAt": "{{nowPlus30MinutesIso}}"
+    },
+    "changeSubscriptionBase": {
+      "subscriptionRequest": "e2e_chg_{{uniqueSuffix}}",
+      "merchantSubscriptionId": "E2E_CHANGE_SCHED_{{uniqueSuffix}}",
+      "originSubscriptionRequest": "{{original.subscriptionRequest}}",
+      "remainingAmount": "50.00",
+      "currency": "HKD",
+      "userCurrency": "HKD",
+      "requestedAt": "{{nowIso}}",
+      "notifyUrl": "https://httpbin.org/post",
+      "successRedirectUrl": "https://httpbin.org/get?status=success",
+      "failedRedirectUrl": "https://httpbin.org/get?status=failed",
+      "cancelRedirectUrl": "https://httpbin.org/get?status=cancel",
+      "subscriptionManagementUrl": "https://example.com/subscription/manage",
+      "productInfoList": [
+        {
+          "description": "Changed subscription with scheduled amount",
+          "periodType": "MONTHLY",
+          "amount": "129.00",
+          "periodInterval": "1",
+          "numberOfPeriod": "12",
+          "scheduledAmounts": [
+            {
+              "period": "2",
+              "amount": "109.00"
+            }
+          ]
+        }
+      ],
+      "merchantInfo": {
+        "merchantId": "{{merchantId}}"
+      },
+      "userInfo": {
+        "userId": "{{original.userInfo.userId}}",
+        "userEmail": "{{original.userInfo.userEmail}}",
+        "userTerminal": "WEB"
+      },
+      "goodsInfo": {
+        "goodsId": "E2E_CHANGE_SCHED_GOODS",
+        "goodsName": "Changed scheduled subscription",
+        "goodsCategory": "SUBSCRIPTION",
+        "goodsUrl": "https://example.com/subscription/change-scheduled",
+        "goodsQuantity": 1
+      },
+      "brandInfo": {
+        "cashierDisplayName": "Waffo Change E2E"
+      },
+      "paymentInfo": {
+        "productName": "SUBSCRIPTION",
+        "payMethodType": "CREDITCARD"
+      },
+      "riskData": {
+        "userCategory": "Member"
+      }
+    }
+  },
+  "e2eTests": [
+    {
+      "id": "E2E-SU01",
+      "name": "create_scheduled_amount_effective",
+      "description": "Create subscription with productInfo.scheduledAmounts and prove the scheduled amount is used in period 2.",
+      "create": {
+        "casePrefix": "e2e_create_sched",
+        "amount": "99.00",
+        "scheduledAmounts": [
+          {
+            "period": "2",
+            "amount": "79.00"
+          }
+        ]
+      },
+      "flow": [
+        "createSubscription",
+        "completeCheckout",
+        "waitForActive",
+        "inquiryWithPaymentDetails",
+        "manage",
+        "simulateNextPeriod",
+        "inquiryWithPaymentDetails"
+      ],
+      "assertions": [
+        {
+          "path": "inquiry.subscriptionStatus",
+          "equals": "ACTIVE"
+        },
+        {
+          "path": "inquiry.currency",
+          "equals": "HKD"
+        },
+        {
+          "path": "inquiry.amount",
+          "amountEquals": "99.00"
+        },
+        {
+          "path": "inquiry.productInfo.scheduledAmounts[period=2].amount",
+          "amountEquals": "79.00"
+        },
+        {
+          "path": "inquiry.paymentDetails[period=1].orderAmount",
+          "amountEquals": "99.00"
+        },
+        {
+          "path": "inquiry.paymentDetails[period=2].orderAmount",
+          "amountEquals": "79.00"
+        }
+      ]
+    },
+    {
+      "id": "E2E-SU02",
+      "name": "update_amount_only_effective_next_period",
+      "description": "Update amount only by subscriptionRequest and prove it is used in period 2.",
+      "create": {
+        "casePrefix": "e2e_update_amount",
+        "amount": "99.00"
+      },
+      "update": {
+        "locateBy": "subscriptionRequest",
+        "request": {
+          "subscriptionRequest": "{{active.subscriptionRequest}}",
+          "amount": "89.00"
+        }
+      },
+      "flow": [
+        "createSubscription",
+        "completeCheckout",
+        "waitForActive",
+        "subscriptionUpdate",
+        "manage",
+        "simulateNextPeriod",
+        "inquiryWithPaymentDetails"
+      ],
+      "assertions": [
+        {
+          "path": "updateResponse.subscriptionId",
+          "equalsRef": "active.subscriptionId"
+        },
+        {
+          "path": "updateResponse.subscriptionRequest",
+          "equalsRef": "active.subscriptionRequest"
+        },
+        {
+          "path": "updateResponse.previousAmount",
+          "amountEquals": "99.00"
+        },
+        {
+          "path": "updateResponse.newAmount",
+          "amountEquals": "89.00"
+        },
+        {
+          "path": "updateResponse.nextEffectivePeriod",
+          "exists": true
+        },
+        {
+          "path": "inquiry.paymentDetails[period=2].orderAmount",
+          "amountEquals": "89.00"
+        }
+      ]
+    },
+    {
+      "id": "E2E-SU03",
+      "name": "update_scheduled_amount_only_by_subscription_id",
+      "description": "Update scheduledAmounts only by subscriptionId and prove period 2 uses the scheduled amount.",
+      "create": {
+        "casePrefix": "e2e_update_sched",
+        "amount": "99.00"
+      },
+      "update": {
+        "locateBy": "subscriptionId",
+        "request": {
+          "subscriptionId": "{{active.subscriptionId}}",
+          "productInfo": {
+            "scheduledAmounts": [
+              {
+                "period": "2",
+                "amount": "69.00"
+              }
+            ]
+          }
+        }
+      },
+      "flow": [
+        "createSubscription",
+        "completeCheckout",
+        "waitForActive",
+        "subscriptionUpdate",
+        "manage",
+        "simulateNextPeriod",
+        "inquiryWithPaymentDetails"
+      ],
+      "assertions": [
+        {
+          "path": "updateResponse.subscriptionId",
+          "equalsRef": "active.subscriptionId"
+        },
+        {
+          "path": "updateResponse.previousAmount",
+          "exists": true
+        },
+        {
+          "path": "updateResponse.newAmount",
+          "exists": true
+        },
+        {
+          "path": "updateResponse.newScheduledAmounts[period=2].amount",
+          "amountEquals": "69.00"
+        },
+        {
+          "path": "updateResponse.nextEffectivePeriod",
+          "exists": true
+        },
+        {
+          "path": "inquiry.paymentDetails[period=2].orderAmount",
+          "amountEquals": "69.00"
+        }
+      ]
+    },
+    {
+      "id": "E2E-SU04",
+      "name": "update_amount_and_multi_period_scheduled_amounts",
+      "description": "Update base amount and two scheduledAmounts, then prove period 2 and period 3 use the scheduled amounts.",
+      "create": {
+        "casePrefix": "e2e_update_multi",
+        "amount": "99.00"
+      },
+      "update": {
+        "locateBy": "subscriptionRequest",
+        "request": {
+          "subscriptionRequest": "{{active.subscriptionRequest}}",
+          "amount": "89.00",
+          "productInfo": {
+            "scheduledAmounts": [
+              {
+                "period": "2",
+                "amount": "79.00"
+              },
+              {
+                "period": "3",
+                "amount": "59.00"
+              }
+            ]
+          }
+        }
+      },
+      "flow": [
+        "createSubscription",
+        "completeCheckout",
+        "waitForActive",
+        "subscriptionUpdate",
+        "manage",
+        "simulateNextPeriod",
+        "inquiryWithPaymentDetails",
+        "manage",
+        "simulateNextPeriod",
+        "inquiryWithPaymentDetails"
+      ],
+      "assertions": [
+        {
+          "path": "updateResponse.subscriptionId",
+          "equalsRef": "active.subscriptionId"
+        },
+        {
+          "path": "updateResponse.subscriptionRequest",
+          "equalsRef": "active.subscriptionRequest"
+        },
+        {
+          "path": "updateResponse.newAmount",
+          "amountEquals": "89.00"
+        },
+        {
+          "path": "updateResponse.newScheduledAmounts[period=2].amount",
+          "amountEquals": "79.00"
+        },
+        {
+          "path": "updateResponse.newScheduledAmounts[period=3].amount",
+          "amountEquals": "59.00"
+        },
+        {
+          "path": "inquiry.paymentDetails[period=2].orderAmount",
+          "amountEquals": "79.00"
+        },
+        {
+          "path": "inquiry.paymentDetails[period=3].orderAmount",
+          "amountEquals": "59.00"
+        }
+      ]
+    },
+    {
+      "id": "E2E-SU05",
+      "name": "update_trial_period_amount_effective_next_trial_period",
+      "description": "Create a subscription with two trial periods, update trialPeriodAmount, and prove period 2 uses the new trial amount.",
+      "create": {
+        "casePrefix": "e2e_update_trial",
+        "amount": "99.00",
+        "productInfo": {
+          "description": "trial subscription update",
+          "periodType": "MONTHLY",
+          "periodInterval": "1",
+          "numberOfPeriod": "12",
+          "trialPeriodAmount": "19.00",
+          "numberOfTrialPeriod": "2",
+          "trialPeriodType": "MONTHLY",
+          "trialPeriodInterval": "1"
+        }
+      },
+      "update": {
+        "locateBy": "subscriptionRequest",
+        "request": {
+          "subscriptionRequest": "{{active.subscriptionRequest}}",
+          "amount": "99.00",
+          "productInfo": {
+            "trialPeriodAmount": "15.00"
+          }
+        }
+      },
+      "flow": [
+        "createSubscription",
+        "completeCheckout",
+        "waitForActive",
+        "subscriptionUpdate",
+        "manage",
+        "simulateNextPeriod",
+        "inquiryWithPaymentDetails"
+      ],
+      "assertions": [
+        {
+          "path": "updateResponse.subscriptionId",
+          "equalsRef": "active.subscriptionId"
+        },
+        {
+          "path": "updateResponse.subscriptionRequest",
+          "equalsRef": "active.subscriptionRequest"
+        },
+        {
+          "path": "updateResponse.previousTrialPeriodAmount",
+          "amountEquals": "19.00"
+        },
+        {
+          "path": "updateResponse.newTrialPeriodAmount",
+          "amountEquals": "15.00"
+        },
+        {
+          "path": "updateResponse.nextEffectivePeriod",
+          "exists": true
+        },
+        {
+          "path": "inquiry.paymentDetails[period=2].orderAmount",
+          "amountEquals": "15.00"
+        }
+      ]
+    },
+    {
+      "id": "E2E-SU06",
+      "name": "change_subscription_with_scheduled_amount_effective",
+      "description": "Change an active subscription to a new plan with scheduledAmounts and prove the new subscription period 2 uses the changed scheduled amount.",
+      "create": {
+        "casePrefix": "e2e_chg_orig",
+        "amount": "99.00"
+      },
+      "change": {
+        "requestTemplate": "changeSubscriptionBase"
+      },
+      "flow": [
+        "createSubscription",
+        "completeCheckout",
+        "waitForActive",
+        "subscriptionChange",
+        "completeChangeAuthorizationIfRequired",
+        "changeInquiryUntilSuccess",
+        "manageNewSubscription",
+        "simulateNextPeriod",
+        "inquiryWithPaymentDetails"
+      ],
+      "assertions": [
+        {
+          "path": "changeResponse.originSubscriptionRequest",
+          "equalsRef": "original.subscriptionRequest"
+        },
+        {
+          "path": "changeResponse.subscriptionRequest",
+          "equalsRef": "change.subscriptionRequest"
+        },
+        {
+          "path": "changeResponse.subscriptionId",
+          "exists": true
+        },
+        {
+          "path": "changeInquiry.subscriptionChangeStatus",
+          "equals": "SUCCESS"
+        },
+        {
+          "path": "changeInquiry.remainingAmount",
+          "exists": true
+        },
+        {
+          "path": "changeInquiry.currency",
+          "equals": "HKD"
+        },
+        {
+          "path": "changeInquiry.productInfoList[0].scheduledAmounts[period=2].amount",
+          "amountEqualsIfPresent": "109.00"
+        },
+        {
+          "path": "inquiry.paymentDetails[period=2].orderAmount",
+          "amountEquals": "109.00"
+        }
+      ]
+    },
+    {
+      "id": "E2E-SU07",
+      "name": "cancel_active_subscription",
+      "description": "Cancel an active subscription and verify terminal status through cancel response and inquiry.",
+      "create": {
+        "casePrefix": "e2e_cancel_full",
+        "amount": "99.00"
+      },
+      "cancel": {
+        "request": {
+          "subscriptionId": "{{active.subscriptionId}}",
+          "merchantId": "{{merchantId}}",
+          "requestedAt": "{{nowIso}}"
+        }
+      },
+      "flow": [
+        "createSubscription",
+        "completeCheckout",
+        "waitForActive",
+        "subscriptionCancel",
+        "inquiryWithPaymentDetails"
+      ],
+      "assertions": [
+        {
+          "path": "cancelResponse.subscriptionRequest",
+          "equalsRef": "active.subscriptionRequest"
+        },
+        {
+          "path": "cancelResponse.subscriptionId",
+          "equalsRef": "active.subscriptionId"
+        },
+        {
+          "path": "cancelResponse.merchantSubscriptionId",
+          "equalsRef": "active.merchantSubscriptionId"
+        },
+        {
+          "path": "cancelResponse.orderStatus",
+          "oneOf": [
+            "MERCHANT_CANCELLED",
+            "CLOSE",
+            "CHANNEL_CANCELLED",
+            "EXPIRED"
+          ]
+        },
+        {
+          "path": "inquiry.subscriptionStatus",
+          "oneOf": [
+            "MERCHANT_CANCELLED",
+            "CLOSE",
+            "USER_CANCELLED",
+            "CHANNEL_CANCELLED"
+          ]
+        }
+      ]
+    }
+  ],
+  "contractNotes": [
+    {
+      "field": "SubscriptionScheduledAmount.period",
+      "status": "OPENAPI_FIELD",
+      "note": "SDK request payloads must use period, not periodNumber."
+    },
+    {
+      "field": "amount-like response fields",
+      "status": "SERVER_SCALE_VARIANCE",
+      "note": "Sandbox can return 8-decimal amount strings. E2E assertions should compare numeric amount values, not raw decimal scale."
+    },
+    {
+      "field": "SubscriptionChangeInquiryResponse.productInfoList.scheduledAmounts",
+      "status": "CONDITIONAL_RESPONSE",
+      "note": "If change inquiry omits scheduledAmounts, the mandatory effectiveness assertion is paymentDetails[period=2].orderAmount."
+    }
+  ]
+}

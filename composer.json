@@ -1,0 +1,51 @@
+{
+  "name": "waffo/waffo-php",
+  "description": "Official Waffo PHP SDK for payments, refunds, subscriptions, wallet inquiry, and webhooks.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["waffo", "payments", "php", "sdk"],
+  "require": {
+    "php": "^8.2 || ^8.3 || ^8.4 || ^8.5",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-openssl": "*"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11.5",
+    "friendsofphp/php-cs-fixer": "^3.87"
+  },
+  "autoload": {
+    "psr-4": {
+      "Waffo\\": "src/"
+    },
+    "files": [
+      "src/Model/Generated/Models.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Waffo\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "lint": "php-cs-fixer check --diff --sequential",
+    "analyse": "phpstan analyse --memory-limit=1G --debug",
+    "test": "phpunit --testsuite unit,vector,readme",
+    "test:unit": "phpunit --testsuite unit",
+    "test:vector": "phpunit --testsuite vector",
+    "test:readme": "phpunit --testsuite readme",
+    "test:e2e": "phpunit --testsuite e2e"
+  },
+  "archive": {
+    "exclude": ["/vendor", "/tests", "/docs", "/scripts", "/sdk-spec", "/openapi.json", "/ADR.md", "/composer.lock", "/.gitignore", "/.phpunit.cache", "/.php-cs-fixer.cache", "/phpunit.xml", "/phpstan.neon", "/.php-cs-fixer.php"]
+  },
+  "config": {
+    "platform": {
+      "php": "8.2.0"
+    },
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

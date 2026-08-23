@@ -1,0 +1,296 @@
+{
+  "module": "webhook-verify",
+  "version": "1.0.0",
+  "description": "Test vectors for webhook signature verification and event handling",
+  "algorithm": {
+    "name": "SHA256withRSA",
+    "signatureHeader": "X-SIGNATURE",
+    "responseSignatureRequired": true
+  },
+  "testKeys": {
+    "description": "Temporary keys for simulating Waffo webhook signatures in tests",
+    "note": "Generate a new key pair for each test to simulate Waffo signing",
+    "privateKey": "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC4xsKB17F+PoWMvyK8c6aQEAbHcbr1lFyT4mVrK3Td9KcFnHzOZNwYL3m9oR58i8FqM7b3eSmDMkN4T9u6C9O84oFAGPtQJgHsPhC5xbqOhJEoHPmxWGH2CuEcJG3qTDIJ4JQVrj9F6N3m7UJGNLj9HuMJsqGVH5q0lUEPwNF5g3q9G1aJLYw99Yt8q7iqDq0qYjYPu0bv8AYq9o8GjE6yUWDMkJLN6UoCZ8kO0jz5F6wHg7aA+xMH3fqGvz9gJqQK0O1E6p1aKWqPn7Q3V0P7U6YZYLLqY8F5i7GJhPYHPvEJG+3F6pqQx9bN3m+XqUV8KWn5x3G3YMv7VNpF8hAgMBAAECggEABE7b8ZjjzD9dSDNqE6LbcA7LGWi1U0HgHJ0xO9X3hU+bGC3qQY8hF2R+p0BXyxGnV8XhLNqJhGj+x8L5qB9eF+RQ1IYWcPqvHNFJxD5H3bW0QY8q9YN7Bt1K2xE6dF7A6q1EfA+nHjh5N+p9F0e3pF3jO8vz1Y5B3b3bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJwKBgQDyPF6W+J5qF7G5xQ8bN2L7xP8e3m9E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3bwKBgQDD8P2xE6W7qF5Q8bN2m7xP9e3m8E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3bwKBgHJ5qF8W6xQ8bN2L7xP9e3m8E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3bwKBgQC5qF6W+J8Q8bN2L7xP9e3m8E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3bwKBgQCbN2m7xP8e3m9E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3b1bLxYQKJ3O2zz7n6eCE1q1b3bX7H5B9F5xO8e3p7E0Y3bw==",
+    "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuMbCgdexfj6FjL8ivHOmkBAGx3G69ZRck+JlayN03fSnBZx8zmTcGC95vaEefIvBajO293kpgzJDeE/bugvTvOKBQBj7UCYB7D4QucW6joSRKBz5sVhh9grhHCRt6kwyCeCUFa4/Rejd5u1CRjS4/R7jCbKhlR+atJVBD8DReYN6vRtWiS2MPfWLfKu4qg6tKmI2D7tG7/AGKvaPBoxOslFgzJCSzelKAmfJDtI8+ResB4O2gPsTB936hr8/YCakCtDtROqdWilqj5+0N1dD+1OmGWCy6mPBeYuxiYT2Bz7xCRvtxeqakMfWzd5vl6lFfClp+cdxt2DL+1TaRfIQIDAQAB"
+  },
+  "eventTypes": [
+    {
+      "type": "PAYMENT_NOTIFICATION",
+      "description": "Payment status notification",
+      "payloadFields": ["acquiringOrderId", "paymentRequestId", "orderStatus", "paidAmount", "paidCurrency", "paidTime"]
+    },
+    {
+      "type": "REFUND_NOTIFICATION",
+      "description": "Refund status notification",
+      "payloadFields": ["acquiringOrderId", "refundRequestId", "refundStatus", "refundAmount", "refundCurrency"]
+    },
+    {
+      "type": "SUBSCRIPTION_STATUS_NOTIFICATION",
+      "description": "Subscription status change",
+      "payloadFields": ["subscriptionId", "subscriptionStatus", "previousStatus"]
+    },
+    {
+      "type": "SUBSCRIPTION_PERIOD_CHANGED_NOTIFICATION",
+      "description": "Subscription period change",
+      "payloadFields": ["subscriptionId", "newPeriodStart", "newPeriodEnd", "billingCycleNumber"]
+    },
+    {
+      "type": "SUBSCRIPTION_CHANGE_NOTIFICATION",
+      "description": "Subscription change (upgrade/downgrade) result",
+      "payloadFields": ["subscriptionRequest", "originSubscriptionRequest", "subscriptionChangeStatus", "subscriptionAction", "remainingAmount"]
+    }
+  ],
+  "unitTests": [
+    {
+      "id": "WHK-001",
+      "name": "verify_payment_notification",
+      "description": "Verify valid payment notification webhook",
+      "input": {
+        "payload": {
+          "acquiringOrderId": "ACQ_123456",
+          "paymentRequestId": "PAY_REQ_001",
+          "orderStatus": "PAY_SUCCESS",
+          "paidAmount": "100.00",
+          "paidCurrency": "HKD",
+          "paidTime": "2024-01-15T10:30:00Z"
+        },
+        "signatureHeader": "X-SIGNATURE"
+      },
+      "expected": {
+        "valid": true,
+        "eventType": "PAYMENT_NOTIFICATION"
+      },
+      "note": "Sign payload with testKeys.privateKey, set signature in X-SIGNATURE header"
+    },
+    {
+      "id": "WHK-002",
+      "name": "verify_refund_notification",
+      "description": "Verify valid refund notification webhook",
+      "input": {
+        "payload": {
+          "acquiringOrderId": "ACQ_123456",
+          "refundRequestId": "REF_001",
+          "refundStatus": "REFUND_SUCCESS",
+          "refundAmount": "50.00",
+          "refundCurrency": "HKD"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "eventType": "REFUND_NOTIFICATION"
+      }
+    },
+    {
+      "id": "WHK-003",
+      "name": "verify_subscription_status_notification",
+      "description": "Verify subscription status change notification",
+      "input": {
+        "payload": {
+          "subscriptionId": "SUB_123",
+          "subscriptionStatus": "ACTIVE",
+          "previousStatus": "IN_PROGRESS"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "eventType": "SUBSCRIPTION_STATUS_NOTIFICATION"
+      }
+    },
+    {
+      "id": "WHK-004",
+      "name": "verify_subscription_status_fallback_to_payment_handler",
+      "description": "SUBSCRIPTION_STATUS_NOTIFICATION should fallback to onSubscriptionPayment handler when onSubscriptionStatus is not registered",
+      "input": {
+        "payload": {
+          "subscriptionId": "SUB_123",
+          "subscriptionStatus": "ACTIVE",
+          "previousStatus": "IN_PROGRESS"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "eventType": "SUBSCRIPTION_STATUS_NOTIFICATION",
+        "handlerFallback": "onSubscriptionPayment"
+      },
+      "note": "There is no SUBSCRIPTION_PAYMENT_NOTIFICATION event. onSubscriptionPayment is a fallback for SUBSCRIPTION_STATUS_NOTIFICATION when onSubscriptionStatus is not registered."
+    },
+    {
+      "id": "WHK-005",
+      "name": "verify_subscription_period_changed",
+      "description": "Verify subscription period change notification",
+      "input": {
+        "payload": {
+          "subscriptionId": "SUB_123",
+          "newPeriodStart": "2024-02-01T00:00:00Z",
+          "newPeriodEnd": "2024-03-01T00:00:00Z",
+          "billingCycleNumber": 2
+        }
+      },
+      "expected": {
+        "valid": true,
+        "eventType": "SUBSCRIPTION_PERIOD_CHANGED_NOTIFICATION"
+      }
+    },
+    {
+      "id": "WHK-006",
+      "name": "verify_subscription_change_notification",
+      "description": "Verify subscription change result notification",
+      "input": {
+        "payload": {
+          "subscriptionRequest": "new-sub-req-001",
+          "originSubscriptionRequest": "orig-sub-req-001",
+          "subscriptionChangeStatus": "SUCCESS",
+          "subscriptionAction": "UPGRADE",
+          "remainingAmount": "50.00"
+        }
+      },
+      "expected": {
+        "valid": true,
+        "eventType": "SUBSCRIPTION_CHANGE_NOTIFICATION"
+      }
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "WHK-E01",
+      "name": "invalid_signature",
+      "description": "Reject invalid signature",
+      "input": {
+        "payload": { "acquiringOrderId": "ACQ_123" },
+        "signature": "INVALID_SIGNATURE_BASE64"
+      },
+      "expected": {
+        "valid": false,
+        "error": "Signature verification failed"
+      }
+    },
+    {
+      "id": "WHK-E02",
+      "name": "missing_signature",
+      "description": "Reject missing signature header",
+      "input": {
+        "payload": { "acquiringOrderId": "ACQ_123" },
+        "signature": null
+      },
+      "expected": {
+        "valid": false,
+        "error": "Missing X-SIGNATURE header"
+      }
+    },
+    {
+      "id": "WHK-E03",
+      "name": "empty_signature",
+      "description": "Reject empty signature",
+      "input": {
+        "payload": { "acquiringOrderId": "ACQ_123" },
+        "signature": ""
+      },
+      "expected": {
+        "valid": false,
+        "error": "Empty X-SIGNATURE header"
+      }
+    },
+    {
+      "id": "WHK-E04",
+      "name": "tampered_payload",
+      "description": "Reject tampered payload",
+      "input": {
+        "originalPayload": { "acquiringOrderId": "ACQ_123", "amount": "100.00" },
+        "tamperedPayload": { "acquiringOrderId": "ACQ_123", "amount": "1000.00" },
+        "signatureOfOriginal": "GENERATED_FROM_ORIGINAL"
+      },
+      "expected": {
+        "valid": false,
+        "error": "Signature verification failed"
+      }
+    },
+    {
+      "id": "WHK-E05",
+      "name": "malformed_json",
+      "description": "Reject malformed JSON payload",
+      "input": {
+        "rawPayload": "{invalid json",
+        "signature": "SOME_SIGNATURE"
+      },
+      "expected": {
+        "valid": false,
+        "error": "Invalid JSON payload"
+      }
+    },
+    {
+      "id": "WHK-E06",
+      "name": "unicode_payload",
+      "description": "Handle Unicode in payload correctly",
+      "input": {
+        "payload": {
+          "orderDescription": "测试订单 - Test Order",
+          "userName": "張三"
+        }
+      },
+      "expected": {
+        "valid": true
+      },
+      "note": "Ensure UTF-8 encoding when verifying signature"
+    }
+  ],
+  "responseSignature": {
+    "description": "Webhook handlers must return signed responses",
+    "format": {
+      "body": "{\"message\":\"success\"}",
+      "signatureHeader": "X-SIGNATURE"
+    },
+    "tests": [
+      {
+        "id": "WHK-R01",
+        "name": "response_signature_required",
+        "description": "Response must include X-SIGNATURE header",
+        "input": {
+          "responseBody": "{\"message\":\"success\"}"
+        },
+        "expected": {
+          "hasSignature": true,
+          "signatureValid": true
+        }
+      }
+    ]
+  },
+  "handlerChainTests": [
+    {
+      "id": "WHK-H01",
+      "name": "chainable_handlers",
+      "description": "Handler registration should be chainable",
+      "code": "waffo.webhook().onPayment(handler1).onRefund(handler2).onSubscriptionStatus(handler3)"
+    },
+    {
+      "id": "WHK-H02",
+      "name": "handler_receives_typed_notification",
+      "description": "Each handler receives correctly typed notification object",
+      "expected": {
+        "onPayment": "PaymentNotification",
+        "onRefund": "RefundNotification",
+        "onSubscriptionStatus": "SubscriptionStatusNotification",
+        "onSubscriptionPayment": "SubscriptionStatusNotification",
+        "onSubscriptionPeriodChanged": "SubscriptionPeriodChangedNotification"
+      }
+    }
+  ],
+  "implementation": {
+    "webhookProcessingFlow": [
+      "1. Receive POST request with JSON body and X-SIGNATURE header",
+      "2. Extract raw body bytes (preserve exact encoding)",
+      "3. Extract X-SIGNATURE header value",
+      "4. Verify signature using Waffo public key",
+      "5. If valid, parse JSON and determine event type",
+      "6. Invoke appropriate registered handler",
+      "7. Generate response body",
+      "8. Sign response with merchant private key",
+      "9. Return response with X-SIGNATURE header"
+    ],
+    "testSetup": [
+      "1. Generate temporary key pair (simulating Waffo keys)",
+      "2. Configure SDK with temporary PUBLIC key as waffoPublicKey",
+      "3. Sign test payloads with temporary PRIVATE key",
+      "4. This simulates Waffo signing webhooks"
+    ]
+  }
+}

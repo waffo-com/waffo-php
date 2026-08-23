@@ -1,0 +1,351 @@
+{
+  "module": "api-response",
+  "version": "1.0.0",
+  "description": "Test vectors for API response parsing and handling",
+  "responseStructure": {
+    "successResponse": {
+      "code": "0",
+      "message": "success",
+      "data": {}
+    },
+    "errorResponse": {
+      "code": "ERROR_CODE",
+      "message": "Error description",
+      "data": null
+    }
+  },
+  "unitTests": [
+    {
+      "id": "API-001",
+      "name": "parse_success_response",
+      "description": "Parse successful API response",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":{\"acquiringOrderId\":\"ACQ_123\",\"orderStatus\":\"ORDER_PENDING\"}}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "code": "0",
+        "message": "success",
+        "data": {
+          "acquiringOrderId": "ACQ_123",
+          "orderStatus": "ORDER_PENDING"
+        }
+      }
+    },
+    {
+      "id": "API-002",
+      "name": "parse_error_response",
+      "description": "Parse error API response",
+      "input": {
+        "json": "{\"code\":\"A0001\",\"message\":\"Invalid API key\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "code": "A0001",
+        "message": "Invalid API key",
+        "data": null
+      }
+    },
+    {
+      "id": "API-003",
+      "name": "parse_create_order_response",
+      "description": "Parse create order response with orderAction",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":{\"acquiringOrderId\":\"ACQ_123\",\"orderStatus\":\"ORDER_PENDING\",\"orderAction\":\"{\\\"webUrl\\\":\\\"https://checkout.waffo.com/pay/123\\\"}\"}}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "data": {
+          "acquiringOrderId": "ACQ_123",
+          "orderStatus": "ORDER_PENDING",
+          "orderAction": "{\"webUrl\":\"https://checkout.waffo.com/pay/123\"}"
+        }
+      }
+    },
+    {
+      "id": "API-004",
+      "name": "fetch_redirect_url",
+      "description": "Extract redirect URL from orderAction",
+      "input": {
+        "orderAction": "{\"webUrl\":\"https://checkout.waffo.com/pay/123\"}"
+      },
+      "expected": {
+        "redirectUrl": "https://checkout.waffo.com/pay/123"
+      }
+    },
+    {
+      "id": "API-005",
+      "name": "parse_subscription_response",
+      "description": "Parse create subscription response",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":{\"subscriptionId\":\"SUB_123\",\"subscriptionStatus\":\"IN_PROGRESS\",\"subscriptionAction\":\"{\\\"webUrl\\\":\\\"https://checkout.waffo.com/subscribe/123\\\"}\"}}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "data": {
+          "subscriptionId": "SUB_123",
+          "subscriptionStatus": "IN_PROGRESS"
+        }
+      }
+    },
+    {
+      "id": "API-006",
+      "name": "parse_inquiry_response",
+      "description": "Parse order inquiry response",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":{\"acquiringOrderId\":\"ACQ_123\",\"orderStatus\":\"PAY_SUCCESS\",\"paidAmount\":\"100.00\",\"paidCurrency\":\"HKD\",\"paidTime\":\"2024-01-15T10:30:00Z\"}}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "data": {
+          "orderStatus": "PAY_SUCCESS",
+          "paidAmount": "100.00"
+        }
+      }
+    },
+    {
+      "id": "API-007",
+      "name": "parse_refund_response",
+      "description": "Parse refund response",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":{\"refundRequestId\":\"REF_123\",\"refundStatus\":\"REFUND_SUCCESS\",\"refundAmount\":\"50.00\"}}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "data": {
+          "refundStatus": "REFUND_SUCCESS"
+        }
+      }
+    }
+  ],
+  "errorCodeTests": [
+    {
+      "id": "API-E01",
+      "name": "merchant_authentication_error",
+      "description": "Classify invalid API key as a merchant-related error",
+      "input": {
+        "json": "{\"code\":\"A0001\",\"message\":\"Invalid API key\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "merchant"
+      }
+    },
+    {
+      "id": "API-E02",
+      "name": "merchant_parameter_error",
+      "description": "Classify server-side parameter validation as a merchant-related error",
+      "input": {
+        "json": "{\"code\":\"A0003\",\"message\":\"Parameter validation failed\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "merchant"
+      }
+    },
+    {
+      "id": "API-E03",
+      "name": "parameter_error",
+      "description": "Handle parameter validation error",
+      "input": {
+        "json": "{\"code\":\"P0001\",\"message\":\"Missing required parameter: paymentRequestId\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "parameter"
+      }
+    },
+    {
+      "id": "API-E04",
+      "name": "business_error",
+      "description": "Handle business logic error",
+      "input": {
+        "json": "{\"code\":\"B0001\",\"message\":\"Order not found\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "business"
+      }
+    },
+    {
+      "id": "API-E05",
+      "name": "system_error",
+      "description": "Handle SDK system error",
+      "input": {
+        "json": "{\"code\":\"S0001\",\"message\":\"Internal server error\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "system"
+      }
+    },
+    {
+      "id": "API-E06",
+      "name": "channel_system_error",
+      "description": "Classify a payment channel rejection as a system-related error",
+      "input": {
+        "json": "{\"code\":\"C0005\",\"message\":\"Payment channel rejected\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "system"
+      }
+    },
+    {
+      "id": "API-E07",
+      "name": "risk_error",
+      "description": "Classify risk control rejection",
+      "input": {
+        "json": "{\"code\":\"D0001\",\"message\":\"Risk control rejected\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "risk"
+      }
+    },
+    {
+      "id": "API-E08",
+      "name": "unknown_status_error",
+      "description": "Keep server unknown status distinct from system errors",
+      "input": {
+        "json": "{\"code\":\"E0001\",\"message\":\"Unknown status\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "unknown_status"
+      }
+    },
+    {
+      "id": "API-E09",
+      "name": "unrecognized_error_prefix",
+      "description": "Classify an unrecognized prefix consistently",
+      "input": {
+        "json": "{\"code\":\"Z0001\",\"message\":\"Unrecognized error\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "errorCategory": "unknown"
+      }
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "API-X01",
+      "name": "empty_data",
+      "description": "Handle response with empty data object",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":{}}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "data": {}
+      }
+    },
+    {
+      "id": "API-X02",
+      "name": "null_data",
+      "description": "Handle response with null data",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":null}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "data": null
+      }
+    },
+    {
+      "id": "API-X03",
+      "name": "missing_data",
+      "description": "Handle response without data field",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\"}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "data": null
+      }
+    },
+    {
+      "id": "API-X04",
+      "name": "missing_message",
+      "description": "Handle response without message field",
+      "input": {
+        "json": "{\"code\":\"0\",\"data\":{\"orderId\":\"123\"}}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "message": null
+      }
+    },
+    {
+      "id": "API-X05",
+      "name": "extra_fields",
+      "description": "Ignore unknown fields in response",
+      "input": {
+        "json": "{\"code\":\"0\",\"message\":\"success\",\"data\":{\"orderId\":\"123\"},\"unknownField\":\"value\"}"
+      },
+      "expected": {
+        "isSuccess": true,
+        "unknownFieldIgnored": true
+      }
+    },
+    {
+      "id": "API-X06",
+      "name": "unicode_in_message",
+      "description": "Handle Unicode in error message",
+      "input": {
+        "json": "{\"code\":\"B0001\",\"message\":\"订单不存在\"}"
+      },
+      "expected": {
+        "isSuccess": false,
+        "message": "订单不存在"
+      }
+    }
+  ],
+  "orderStatusValues": [
+    "ORDER_PENDING",
+    "PAY_SUCCESS",
+    "PAY_FAILED",
+    "ORDER_CANCELLED",
+    "ORDER_EXPIRED",
+    "ORDER_PARTIALLY_REFUNDED",
+    "ORDER_FULLY_REFUNDED"
+  ],
+  "subscriptionStatusValues": [
+    "AUTHORIZATION_REQUIRED",
+    "IN_PROGRESS",
+    "ACTIVE",
+    "CLOSE",
+    "MERCHANT_CANCELLED",
+    "USER_CANCELLED",
+    "CHANNEL_CANCELLED",
+    "EXPIRED"
+  ],
+  "refundStatusValues": [
+    "REFUND_PENDING",
+    "REFUND_SUCCESS",
+    "REFUND_FAILED"
+  ],
+  "errorCodeCategories": {
+    "A": "Merchant-related errors (parameters, authentication, permissions, contracts)",
+    "B": "Business logic errors",
+    "C": "Waffo system or payment channel errors",
+    "D": "Risk control errors",
+    "E": "Unknown transaction status",
+    "P": "Legacy parameter validation errors",
+    "S": "SDK internal errors"
+  },
+  "implementation": {
+    "apiResponseInterface": {
+      "typescript": "interface ApiResponse<T> { code: string; message?: string; data?: T; isSuccess(): boolean; getData(): T | undefined; getMessage(): string | undefined; getCode(): string; }",
+      "java": "class ApiResponse<T> { String code; String message; T data; boolean isSuccess(); Optional<T> getData(); Optional<String> getMessage(); String getCode(); }"
+    },
+    "successCheck": "code === '0'",
+    "notes": [
+      "Always check isSuccess() before accessing data",
+      "getData() may return undefined/null even on success",
+      "getMessage() provides human-readable error description",
+      "Error codes are strings, not numbers"
+    ]
+  }
+}

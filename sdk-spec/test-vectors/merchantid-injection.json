@@ -1,0 +1,326 @@
+{
+  "module": "merchantid-injection",
+  "version": "1.0.0",
+  "description": "Test vectors for automatic merchant ID injection",
+  "injectionBehavior": {
+    "description": "SDK should auto-inject merchantId from config only at the path declared by the operation request schema",
+    "sources": [
+      "config.merchantId (if configured)",
+      "request.merchantInfo.merchantId (if set)",
+      "request.merchantId (if set at top level)"
+    ],
+    "priority": "Request value takes precedence over config value"
+  },
+  "unitTests": [
+    {
+      "id": "MID-001",
+      "name": "inject_from_config",
+      "description": "Inject merchantId from config when not in request",
+      "input": {
+        "configMerchantId": "CONFIG_MERCHANT_123",
+        "requestMerchantId": null
+      },
+      "expected": {
+        "finalMerchantId": "CONFIG_MERCHANT_123"
+      }
+    },
+    {
+      "id": "MID-002",
+      "name": "preserve_request_value",
+      "description": "Keep merchantId from request when set",
+      "input": {
+        "configMerchantId": "CONFIG_MERCHANT_123",
+        "requestMerchantId": "REQUEST_MERCHANT_456"
+      },
+      "expected": {
+        "finalMerchantId": "REQUEST_MERCHANT_456"
+      }
+    },
+    {
+      "id": "MID-003",
+      "name": "inject_into_merchantInfo",
+      "description": "Inject into nested merchantInfo object",
+      "input": {
+        "configMerchantId": "CONFIG_MERCHANT_123",
+        "request": {
+          "merchantInfo": {}
+        }
+      },
+      "expected": {
+        "request": {
+          "merchantInfo": {
+            "merchantId": "CONFIG_MERCHANT_123"
+          }
+        }
+      }
+    },
+    {
+      "id": "MID-004",
+      "name": "inject_create_merchantInfo",
+      "description": "Create merchantInfo object if not exists",
+      "input": {
+        "configMerchantId": "CONFIG_MERCHANT_123",
+        "request": {}
+      },
+      "expected": {
+        "request": {
+          "merchantInfo": {
+            "merchantId": "CONFIG_MERCHANT_123"
+          }
+        }
+      }
+    },
+    {
+      "id": "MID-005",
+      "name": "preserve_nested_merchantInfo",
+      "description": "Keep existing merchantInfo.merchantId",
+      "input": {
+        "configMerchantId": "CONFIG_MERCHANT_123",
+        "request": {
+          "merchantInfo": {
+            "merchantId": "EXISTING_MERCHANT_789"
+          }
+        }
+      },
+      "expected": {
+        "request": {
+          "merchantInfo": {
+            "merchantId": "EXISTING_MERCHANT_789"
+          }
+        }
+      }
+    },
+    {
+      "id": "MID-006",
+      "name": "inject_top_level",
+      "description": "Inject into top-level merchantId",
+      "input": {
+        "configMerchantId": "CONFIG_MERCHANT_123",
+        "request": {
+          "merchantId": null
+        }
+      },
+      "expected": {
+        "request": {
+          "merchantId": "CONFIG_MERCHANT_123"
+        }
+      }
+    }
+  ],
+  "requestTypeTests": [
+    {
+      "id": "MID-T01",
+      "name": "order_create_injection",
+      "description": "Inject for CreateOrderParams",
+      "requestType": "CreateOrderParams",
+      "operationId": "orderCreate",
+      "capability": "order",
+      "method": "create",
+      "requestSchema": "AcqOrderCreateRequest",
+      "injectionPath": "merchantInfo.merchantId"
+    },
+    {
+      "id": "MID-T02",
+      "name": "order_inquiry_no_injection",
+      "description": "Do not inject for InquiryOrderParams because the request schema has no merchantId",
+      "requestType": "InquiryOrderParams",
+      "operationId": "orderInquiry",
+      "capability": "order",
+      "method": "inquiry",
+      "requestSchema": "AcqOrderInquiryRequest",
+      "injectionPath": null
+    },
+    {
+      "id": "MID-T03",
+      "name": "order_cancel_injection",
+      "description": "Inject for CancelOrderParams",
+      "requestType": "CancelOrderParams",
+      "operationId": "orderCancel",
+      "capability": "order",
+      "method": "cancel",
+      "requestSchema": "AcqOrderCancelRequest",
+      "injectionPath": "merchantId"
+    },
+    {
+      "id": "MID-T04",
+      "name": "order_refund_injection",
+      "description": "Inject for RefundOrderParams",
+      "requestType": "RefundOrderParams",
+      "operationId": "orderRefund",
+      "capability": "order",
+      "method": "refund",
+      "requestSchema": "AcqOrderRefundRequest",
+      "injectionPath": "merchantId"
+    },
+    {
+      "id": "MID-T05",
+      "name": "subscription_create_injection",
+      "description": "Inject for CreateSubscriptionParams",
+      "requestType": "CreateSubscriptionParams",
+      "operationId": "createSubscription",
+      "capability": "subscription",
+      "method": "create",
+      "requestSchema": "AcqSubscriptionCreateRequest",
+      "injectionPath": "merchantInfo.merchantId"
+    },
+    {
+      "id": "MID-T06",
+      "name": "subscription_inquiry_no_injection",
+      "description": "Do not inject for InquirySubscriptionParams because the request schema has no merchantId",
+      "requestType": "InquirySubscriptionParams",
+      "operationId": "subscriptionInquiry",
+      "capability": "subscription",
+      "method": "inquiry",
+      "requestSchema": "SubscriptionInquiryRequest",
+      "injectionPath": null
+    },
+    {
+      "id": "MID-T07",
+      "name": "subscription_cancel_injection",
+      "description": "Inject for CancelSubscriptionParams",
+      "requestType": "CancelSubscriptionParams",
+      "operationId": "merchantCancel",
+      "capability": "subscription",
+      "method": "cancel",
+      "requestSchema": "SubscriptionCancelRequest",
+      "injectionPath": "merchantId"
+    },
+    {
+      "id": "MID-T08",
+      "name": "subscription_manage_no_injection",
+      "description": "Do not inject for ManageSubscriptionParams because the request schema has no merchantId",
+      "requestType": "ManageSubscriptionParams",
+      "operationId": "subscriptionManage",
+      "capability": "subscription",
+      "method": "manage",
+      "requestSchema": "SubscriptionManageRequest",
+      "injectionPath": null
+    },
+    {
+      "id": "MID-T09",
+      "name": "order_capture_injection",
+      "description": "Inject for CaptureOrderParams",
+      "requestType": "CaptureOrderParams",
+      "operationId": "orderCapture",
+      "capability": "order",
+      "method": "capture",
+      "requestSchema": "OrderCaptureRequest",
+      "injectionPath": "merchantId"
+    },
+    {
+      "id": "MID-T10",
+      "name": "subscription_update_no_injection",
+      "description": "Do not inject for UpdateSubscriptionParams because the request schema has no merchantId",
+      "requestType": "UpdateSubscriptionParams",
+      "operationId": "subscriptionUpdate",
+      "capability": "subscription",
+      "method": "update",
+      "requestSchema": "SubscriptionUpdateRequest",
+      "injectionPath": null
+    },
+    {
+      "id": "MID-T11",
+      "name": "subscription_change_injection",
+      "description": "Inject for SubscriptionChangeParams",
+      "requestType": "SubscriptionChangeParams",
+      "operationId": "changeSubscription",
+      "capability": "subscription",
+      "method": "change",
+      "requestSchema": "SubscriptionChangeRequest",
+      "injectionPath": "merchantInfo.merchantId"
+    },
+    {
+      "id": "MID-T12",
+      "name": "subscription_change_inquiry_no_injection",
+      "description": "Do not inject for SubscriptionChangeInquiryParams because the request schema has no merchantId",
+      "requestType": "SubscriptionChangeInquiryParams",
+      "operationId": "subscriptionChangeInquiry",
+      "capability": "subscription",
+      "method": "changeInquiry",
+      "requestSchema": "SubscriptionChangeInquiryRequest",
+      "injectionPath": null
+    },
+    {
+      "id": "MID-T13",
+      "name": "refund_inquiry_no_injection",
+      "description": "Do not inject for InquiryRefundParams because the request schema has no merchantId",
+      "requestType": "InquiryRefundParams",
+      "operationId": "refundInquiry",
+      "capability": "refund",
+      "method": "inquiry",
+      "requestSchema": "AcqOrderRefundInquiryRequest",
+      "injectionPath": null
+    },
+    {
+      "id": "MID-T14",
+      "name": "merchant_config_injection",
+      "description": "Inject for InquiryMerchantConfigParams",
+      "requestType": "InquiryMerchantConfigParams",
+      "operationId": "merchantConfigInquiry",
+      "capability": "merchantConfig",
+      "method": "inquiry",
+      "requestSchema": "AcqMerchantConfigRequest",
+      "injectionPath": "merchantId"
+    },
+    {
+      "id": "MID-T15",
+      "name": "pay_method_config_injection",
+      "description": "Inject for InquiryPayMethodConfigParams",
+      "requestType": "InquiryPayMethodConfigParams",
+      "operationId": "payMethodConfigInquiry",
+      "capability": "payMethodConfig",
+      "method": "inquiry",
+      "requestSchema": "PayMethodConfigInquiryRequest",
+      "injectionPath": "merchantId"
+    },
+    {
+      "id": "MID-T16",
+      "name": "wallet_inquiry_injection",
+      "description": "Inject for WalletInquiryParams",
+      "requestType": "WalletInquiryParams",
+      "operationId": "walletInquiry",
+      "capability": "wallet",
+      "method": "inquiry",
+      "requestSchema": "WalletInquiryReq",
+      "injectionPath": "merchantInfo.merchantId"
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "MID-E04",
+      "name": "preserve_other_merchantInfo_fields",
+      "description": "Preserve other fields in merchantInfo when injecting",
+      "input": {
+        "configMerchantId": "CONFIG_MERCHANT_123",
+        "request": {
+          "merchantInfo": {
+            "merchantName": "Test Store",
+            "mcc": "5411"
+          }
+        }
+      },
+      "expected": {
+        "request": {
+          "merchantInfo": {
+            "merchantId": "CONFIG_MERCHANT_123",
+            "merchantName": "Test Store",
+            "mcc": "5411"
+          }
+        }
+      }
+    }
+  ],
+  "implementation": {
+    "injectionLogic": [
+      "1. Check if request has merchantInfo or merchantId at target path",
+      "2. If target field is null/undefined, check config.merchantId",
+      "3. If config.merchantId is non-empty, inject into request",
+      "4. Return modified request for API call"
+    ],
+    "notes": [
+      "Injection happens before request signing",
+      "Different operations have different injection paths, including no injection",
+      "Public resource tests must assert the serialized request body through a fake transport"
+    ]
+  }
+}

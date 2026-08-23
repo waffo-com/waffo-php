@@ -1,0 +1,11 @@
+{
+  "description": "Webhook response format - merchant must return signed response to Waffo",
+  "successResponse": {
+    "body": "{\"message\":\"success\"}",
+    "description": "Returned when webhook is processed successfully"
+  },
+  "failedResponse": {
+    "body": "{\"message\":\"failed\"}",
+    "description": "Returned when webhook processing failed"
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "module": "amount-validator",
+  "version": "1.0.0",
+  "description": "Test vectors for amount validation across different currencies",
+  "unitTests": [
+    {
+      "id": "AMT-001",
+      "name": "valid_integer",
+      "description": "Integer amount is valid for any currency",
+      "input": { "amount": "100", "currency": "USD" },
+      "expected": { "valid": true }
+    },
+    {
+      "id": "AMT-002",
+      "name": "valid_decimal_2",
+      "description": "Two decimal places valid for USD",
+      "input": { "amount": "10.50", "currency": "USD" },
+      "expected": { "valid": true }
+    },
+    {
+      "id": "AMT-003",
+      "name": "valid_decimal_max",
+      "description": "Maximum allowed decimals for currency",
+      "input": { "amount": "99.99", "currency": "USD" },
+      "expected": { "valid": true }
+    },
+    {
+      "id": "AMT-004",
+      "name": "valid_large_amount",
+      "description": "Large amounts are valid",
+      "input": { "amount": "1000000.00", "currency": "USD" },
+      "expected": { "valid": true }
+    },
+    {
+      "id": "AMT-005",
+      "name": "valid_small_amount",
+      "description": "Small amounts are valid",
+      "input": { "amount": "0.01", "currency": "USD" },
+      "expected": { "valid": true }
+    }
+  ],
+  "currencyPrecisionTests": [
+    {
+      "id": "AMT-P01",
+      "name": "usd_two_decimals",
+      "description": "USD allows 2 decimal places",
+      "input": { "amount": "10.00", "currency": "USD" },
+      "expected": { "valid": true, "precision": 2 }
+    },
+    {
+      "id": "AMT-P02",
+      "name": "usd_excess_decimals",
+      "description": "USD rejects more than 2 decimals",
+      "input": { "amount": "10.001", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_CURRENCY_PRECISION",
+        "message": "Amount '10.001' exceeds maximum precision for USD (2 decimals)"
+      }
+    },
+    {
+      "id": "AMT-P03",
+      "name": "jpy_no_decimals",
+      "description": "JPY allows 0 decimal places",
+      "input": { "amount": "1000", "currency": "JPY" },
+      "expected": { "valid": true, "precision": 0 }
+    },
+    {
+      "id": "AMT-P04",
+      "name": "jpy_rejects_decimals",
+      "description": "JPY rejects any decimal places",
+      "input": { "amount": "100.5", "currency": "JPY" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_CURRENCY_PRECISION",
+        "message": "Amount '100.5' exceeds maximum precision for JPY (0 decimals)"
+      }
+    },
+    {
+      "id": "AMT-P05",
+      "name": "bhd_three_decimals",
+      "description": "BHD allows 3 decimal places",
+      "input": { "amount": "10.500", "currency": "BHD" },
+      "expected": { "valid": true, "precision": 3 }
+    },
+    {
+      "id": "AMT-P06",
+      "name": "bhd_excess_decimals",
+      "description": "BHD rejects more than 3 decimals",
+      "input": { "amount": "10.5001", "currency": "BHD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_CURRENCY_PRECISION",
+        "message": "Amount '10.5001' exceeds maximum precision for BHD (3 decimals)"
+      }
+    },
+    {
+      "id": "AMT-P07",
+      "name": "hkd_two_decimals",
+      "description": "HKD allows 2 decimal places",
+      "input": { "amount": "100.00", "currency": "HKD" },
+      "expected": { "valid": true, "precision": 2 }
+    },
+    {
+      "id": "AMT-P08",
+      "name": "eur_two_decimals",
+      "description": "EUR allows 2 decimal places",
+      "input": { "amount": "50.99", "currency": "EUR" },
+      "expected": { "valid": true, "precision": 2 }
+    },
+    {
+      "id": "AMT-P09",
+      "name": "cny_two_decimals",
+      "description": "CNY allows 2 decimal places",
+      "input": { "amount": "888.88", "currency": "CNY" },
+      "expected": { "valid": true, "precision": 2 }
+    },
+    {
+      "id": "AMT-P10",
+      "name": "krw_no_decimals",
+      "description": "KRW allows 0 decimal places",
+      "input": { "amount": "10000", "currency": "KRW" },
+      "expected": { "valid": true, "precision": 0 }
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "AMT-E01",
+      "name": "null_amount",
+      "description": "Null amount throws error",
+      "input": { "amount": null, "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Amount cannot be null"
+      }
+    },
+    {
+      "id": "AMT-E02",
+      "name": "empty_amount",
+      "description": "Empty string throws error",
+      "input": { "amount": "", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Amount cannot be empty"
+      }
+    },
+    {
+      "id": "AMT-E03",
+      "name": "negative_amount",
+      "description": "Negative amount throws error",
+      "input": { "amount": "-10.00", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "NEGATIVE_AMOUNT",
+        "message": "Amount cannot be negative: -10.00"
+      }
+    },
+    {
+      "id": "AMT-E04",
+      "name": "zero_amount",
+      "description": "Zero amount throws error",
+      "input": { "amount": "0", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "ZERO_AMOUNT",
+        "message": "Amount cannot be zero"
+      }
+    },
+    {
+      "id": "AMT-E05",
+      "name": "zero_decimal_amount",
+      "description": "Zero with decimals throws error",
+      "input": { "amount": "0.00", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "ZERO_AMOUNT",
+        "message": "Amount cannot be zero"
+      }
+    },
+    {
+      "id": "AMT-E06",
+      "name": "invalid_format_letters",
+      "description": "Letters in amount throws error",
+      "input": { "amount": "abc", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Invalid amount format: abc"
+      }
+    },
+    {
+      "id": "AMT-E07",
+      "name": "invalid_format_mixed",
+      "description": "Mixed letters and numbers throws error",
+      "input": { "amount": "10abc", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Invalid amount format: 10abc"
+      }
+    },
+    {
+      "id": "AMT-E08",
+      "name": "invalid_format_special",
+      "description": "Special characters throws error",
+      "input": { "amount": "$10.00", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Invalid amount format: $10.00"
+      }
+    },
+    {
+      "id": "AMT-E09",
+      "name": "invalid_format_comma",
+      "description": "Comma separator throws error (use dot)",
+      "input": { "amount": "10,00", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Invalid amount format: 10,00"
+      }
+    },
+    {
+      "id": "AMT-E10",
+      "name": "invalid_format_multiple_dots",
+      "description": "Multiple dots throws error",
+      "input": { "amount": "10.00.00", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Invalid amount format: 10.00.00"
+      }
+    },
+    {
+      "id": "AMT-E11",
+      "name": "whitespace_amount",
+      "description": "Whitespace-only amount throws error",
+      "input": { "amount": "   ", "currency": "USD" },
+      "expected": {
+        "valid": false,
+        "errorCode": "INVALID_AMOUNT_FORMAT",
+        "message": "Amount cannot be empty"
+      }
+    },
+    {
+      "id": "AMT-E12",
+      "name": "leading_zeros",
+      "description": "Leading zeros are normalized",
+      "input": { "amount": "00010.00", "currency": "USD" },
+      "expected": { "valid": true, "normalizedAmount": "10.00" }
+    }
+  ],
+  "currencyPrecisionReference": {
+    "description": "Reference table for currency decimal precision",
+    "zeroDecimals": ["JPY", "KRW", "VND", "IDR", "CLP", "PYG", "UGX", "RWF"],
+    "twoDecimals": ["USD", "EUR", "GBP", "HKD", "SGD", "AUD", "CNY", "TWD", "MYR", "THB", "PHP", "INR", "CAD", "NZD", "CHF", "SEK", "NOK", "DKK", "PLN", "CZK", "MXN", "BRL", "ARS", "ZAR", "AED", "SAR", "QAR", "EGP", "TRY"],
+    "threeDecimals": ["BHD", "KWD", "OMR", "JOD", "TND", "LYD", "IQD"]
+  }
+}
