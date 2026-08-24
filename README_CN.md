@@ -114,9 +114,9 @@ Waffo SDK 是 [Waffo 支付平台](https://www.waffo.com) 的**官方 SDK 集合
 |------|------|------|------|
 | Java | [com.waffo:waffo-java](https://github.com/waffo-com/waffo-java) | ✅ 稳定 | [English](https://github.com/waffo-com/waffo-java/blob/main/README_EN.md) / [中文](https://github.com/waffo-com/waffo-java) |
 | Node.js/TypeScript | [@waffo/waffo-node](./packages/waffo-node) | ✅ 稳定 | [English](./packages/waffo-node/README.md) / [中文](./packages/waffo-node/README_CN.md) |
-| Go | [waffo-go](./packages/waffo-go) | 🔶 Beta | [English](./packages/waffo-go/README.md) / [中文](./packages/waffo-go/README_CN.md) |
-| Python | [waffo](./packages/waffo-python) | 🔶 Beta | [English](./packages/waffo-python/README.md) / [中文](./packages/waffo-python/README_CN.md) |
-| PHP | [waffo/waffo-php](./packages/waffo-php) | 🔶 Beta | [English](./packages/waffo-php/README.md) / [中文](./packages/waffo-php/README_CN.md) |
+| Go | [waffo-go](./packages/waffo-go) | ✅ 稳定 | [English](./packages/waffo-go/README.md) / [中文](./packages/waffo-go/README_CN.md) |
+| Python | [waffo](./packages/waffo-python) | ✅ 稳定 | [English](./packages/waffo-python/README.md) / [中文](./packages/waffo-python/README_CN.md) |
+| PHP | [waffo/waffo-php](./packages/waffo-php) | ✅ 稳定 | [English](./packages/waffo-php/README.md) / [中文](./packages/waffo-php/README_CN.md) |
 | Ruby | waffo-ruby | 🚧 计划中 | - |
 
 > **注意**: 各语言 SDK 的详细安装说明、代码示例和框架集成请参阅对应 SDK 的 README 文档。
