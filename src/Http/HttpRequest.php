@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Waffo\Http;
 
-final readonly class HttpRequest
+final class HttpRequest
 {
     /** @var non-empty-string */
     public string $url;

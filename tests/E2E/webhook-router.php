@@ -29,11 +29,11 @@ if ($body === false) {
 $signature = $_SERVER['HTTP_X_SIGNATURE'] ?? null;
 $handler = (new Waffo(E2EConfig::load()->toSdkConfig()))->webhook();
 $handler
-    ->onPayment(static fn (array $notification): null => null)
-    ->onRefund(static fn (array $notification): null => null)
-    ->onSubscriptionStatus(static fn (array $notification): null => null)
-    ->onSubscriptionPeriodChanged(static fn (array $notification): null => null)
-    ->onSubscriptionChange(static fn (array $notification): null => null);
+    ->onPayment(static fn (array $notification) => null)
+    ->onRefund(static fn (array $notification) => null)
+    ->onSubscriptionStatus(static fn (array $notification) => null)
+    ->onSubscriptionPeriodChanged(static fn (array $notification) => null)
+    ->onSubscriptionChange(static fn (array $notification) => null);
 $result = $handler->handleWebhook($body, is_string($signature) ? $signature : null);
 
 try {

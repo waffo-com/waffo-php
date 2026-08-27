@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Waffo\Tests\Unit;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Waffo\Config\WaffoConfig;
 use Waffo\Http\HttpResponse;
@@ -37,7 +36,7 @@ final class ResourceTest extends TestCase
         yield 'wallet inquiry' => ['wallet', 'inquiry', 'walletInquiry', '/wallet/inquiry', false, 'nested'];
     }
 
-    #[DataProvider('operations')]
+    /** @dataProvider operations */
     public function testPublicOperationUsesExpectedPath(
         string $capability,
         string $operation,

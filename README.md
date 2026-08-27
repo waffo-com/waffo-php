@@ -147,13 +147,15 @@ Waffo SDK is the **official SDK collection** for [Waffo Payment Platform](https:
 | Node.js | 18+ | npm, yarn, or pnpm |
 | Python | 3.9+ | pip |
 | Go | 1.20+ | go modules |
-| PHP | 8.2+ | Composer |
+| PHP | 8.0+ | Composer |
 
 ### Version Compatibility
 
 ## Installation
 
 ### PHP
+
+> Requires PHP 8.0 or newer. PHP 8.0 and 8.1 are SDK-compatible but no longer receive upstream PHP security fixes; use a currently supported PHP runtime in production.
 
 ```bash
 composer require waffo/waffo-php

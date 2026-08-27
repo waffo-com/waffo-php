@@ -17,10 +17,10 @@ use Waffo\Webhook\WebhookHandler;
 
 final class Waffo
 {
-    private readonly WaffoHttpClient $httpClient;
-    private readonly WebhookHandler $webhookHandler;
+    private WaffoHttpClient $httpClient;
+    private WebhookHandler $webhookHandler;
 
-    public function __construct(private readonly WaffoConfig $config)
+    public function __construct(private WaffoConfig $config)
     {
         $this->httpClient = new WaffoHttpClient($config);
         $this->webhookHandler = new WebhookHandler($config);

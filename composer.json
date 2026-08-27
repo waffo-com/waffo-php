@@ -5,14 +5,14 @@
   "license": "MIT",
   "keywords": ["waffo", "payments", "php", "sdk"],
   "require": {
-    "php": "^8.2 || ^8.3 || ^8.4 || ^8.5",
+    "php": "^8.0",
     "ext-curl": "*",
     "ext-json": "*",
     "ext-openssl": "*"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^11.5",
+    "phpunit/phpunit": "^9.6",
     "friendsofphp/php-cs-fixer": "^3.87"
   },
   "autoload": {
@@ -42,7 +42,7 @@
   },
   "config": {
     "platform": {
-      "php": "8.2.0"
+      "php": "8.0.0"
     },
     "sort-packages": true
   },

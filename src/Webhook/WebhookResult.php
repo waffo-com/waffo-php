@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Waffo\Webhook;
 
-final readonly class WebhookResult
+final class WebhookResult
 {
     public function __construct(
         public bool $success,

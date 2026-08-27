@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Waffo\Tests\E2E;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Waffo\Model\Generated\AcqOrderCreatedResponse;
 use Waffo\Model\Generated\AcqOrderInquiry;
@@ -12,8 +11,10 @@ use Waffo\Model\Generated\WalletInquiryResponse;
 use Waffo\Response\ApiResponse;
 use Waffo\Waffo;
 
-#[Group('e2e')]
-#[Group('x402')]
+/**
+ * @group e2e
+ * @group x402
+ */
 final class X402SandboxE2ETest extends TestCase
 {
     private const AMOUNT = '0.01';

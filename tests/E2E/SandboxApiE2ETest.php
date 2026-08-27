@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Waffo\Tests\E2E;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Waffo\Model\Generated\AcqOrderCreatedResponse;
 use Waffo\Model\Generated\AcqOrderInquiry;
@@ -13,7 +12,7 @@ use Waffo\Model\Generated\WalletInquiryResponse;
 use Waffo\Response\ApiResponse;
 use Waffo\Waffo;
 
-#[Group('e2e')]
+/** @group e2e */
 final class SandboxApiE2ETest extends TestCase
 {
     private static Waffo $waffo;

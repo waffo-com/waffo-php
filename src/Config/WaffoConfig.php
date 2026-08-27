@@ -8,16 +8,18 @@ use Waffo\Crypto\Rsa;
 use Waffo\Http\HttpTransport;
 use Waffo\Log\LoggerInterface;
 
-final readonly class WaffoConfig
+final class WaffoConfig
 {
     public const DEFAULT_CONNECT_TIMEOUT_MS = 10_000;
     public const DEFAULT_READ_TIMEOUT_MS = 30_000;
+
+    public Environment $environment;
 
     public function __construct(
         public string $apiKey,
         public string $privateKey,
         public string $waffoPublicKey,
-        public Environment $environment = Environment::Sandbox,
+        Environment|string $environment = Environment::Sandbox,
         public ?string $merchantId = null,
         public int $connectTimeoutMs = self::DEFAULT_CONNECT_TIMEOUT_MS,
         public int $readTimeoutMs = self::DEFAULT_READ_TIMEOUT_MS,
@@ -33,6 +35,7 @@ final readonly class WaffoConfig
 
         Rsa::assertPrivateKey($privateKey);
         Rsa::assertPublicKey($waffoPublicKey);
+        $this->environment = is_string($environment) ? Environment::parse($environment) : $environment;
     }
 
     public static function fromEnvironment(): self

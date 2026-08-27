@@ -4,12 +4,12 @@
 
 | Decision Area | Choice | Rationale |
 |---|---|---|
-| Runtime Version | PHP 8.2+ | PHP 8.2 still receives security fixes in the initial delivery window and offers enums, readonly properties, and modern typing |
+| Runtime Version | PHP 8.0+ | One PHP 8.0-compatible codebase covers PHP 8.0 through PHP 8.5 without separate packages |
 | Dependency Strategy | Zero Composer runtime packages; require `ext-curl`, `ext-json`, and `ext-openssl` | Keep the payment runtime small while relying on maintained PHP extensions for TLS, JSON, and RSA |
 | HTTP Client | Native cURL behind `HttpTransport` | TLS verification, timeout control, test injection, and framework independence |
 | JSON Framework | Native JSON with `JSON_THROW_ON_ERROR` | Deterministic compact UTF-8 request bytes and no runtime library dependency |
 | Build Tool | Composer | Standard package metadata, PSR-4 autoloading, archive creation, and clean-install verification |
-| Test Framework | PHPUnit 11 | Data-provider support for shared vectors and JUnit evidence output |
+| Test Framework | PHPUnit 9.6 | The same test runner executes on every supported PHP 8.x runtime and produces JUnit evidence |
 | E2E Test Framework | PHPUnit + Playwright helper + local PHP webhook server | Real signed API, browser, and callback paths can be proven with inspectable artifacts |
 | Type System | Generated-committed PHP DTOs from `openapi.json` | API fields remain contract-derived while users get named PHP classes and IDE metadata |
 | Code Style | PHP-CS-Fixer with PSR-12 + PHPStan | Deterministic formatting and static analysis |
@@ -20,11 +20,13 @@
 
 ### 1. Runtime Version
 
-**Decision:** Support PHP 8.2, 8.3, 8.4, and 8.5. CI uses all four versions.
+**Decision:** Support PHP 8.0, 8.1, 8.2, 8.3, 8.4, and 8.5 from one Composer package. CI executes all six versions.
 
-**Rationale:** PHP 8.2 supplies the language features required by the SDK and remains security-supported through 2026-12-31. The CI range proves current maintained runtimes without creating separate code paths.
+**Rationale:** Merchant applications still run PHP 8.0 and 8.1. The SDK uses a PHP 8.0 syntax baseline and compatibility value objects so the documented API remains consistent without runtime-specific package variants.
 
-**Alternatives Considered:** PHP 8.1 would widen adoption but is outside upstream security support. PHP 8.3+ would extend the support window but unnecessarily exclude PHP 8.2 merchants during the initial beta.
+**Compatibility Boundary:** `Environment` and `WebhookEventType` are PHP 8.0-compatible value objects on every supported runtime, not native `BackedEnum` implementations. Documented constant-based configuration and the `from()`, `tryFrom()`, `cases()`, `name`, and `value` helpers remain available, but enum reflection, `instanceof BackedEnum`, and direct enum-case property access on constants are not supported. Classes that previously used PHP 8.1 `readonly` syntax are mutable at the language level and must be treated as immutable values by consumers.
+
+**Alternatives Considered:** Separate packages for PHP 8.0/8.1 and PHP 8.2+ were rejected because they would create divergent APIs and release streams. PHP 8.0 and 8.1 are outside upstream security support, so documentation distinguishes SDK compatibility from PHP security maintenance.
 
 ### 2. Dependency Strategy
 
@@ -52,7 +54,7 @@
 
 ### 6. Test Framework
 
-**Decision:** Use PHPUnit 11, PHPStan, and PHP-CS-Fixer as development dependencies.
+**Decision:** Use PHPUnit 9.6, PHPStan, and PHP-CS-Fixer as development dependencies.
 
 **Rationale:** PHPUnit data providers consume every registered shared vector. PHPStan and PHP-CS-Fixer cover static and style checks before packaging.
 
@@ -108,3 +110,4 @@
 | Date | Decision | Change | Author |
 |---|---|---|---|
 | 2026-08-22 | Initial PHP SDK ADR | Runtime, package, generated types, tests, E2E, and release preparation selected | Codex |
+| 2026-08-27 | PHP 8.0+ compatibility | One package now targets PHP 8.0–8.5 with a PHP 8.0 syntax and test baseline | Codex |

@@ -8,7 +8,7 @@ use JsonException;
 use Waffo\Model\Generated\ModelRegistry;
 use Waffo\Util\Json;
 
-final readonly class ApiResponse
+final class ApiResponse
 {
     public function __construct(
         public string $code,

@@ -127,6 +127,8 @@ Waffo SDK 是 [Waffo 支付平台](https://www.waffo.com) 的**官方 SDK 集合
 
 ### PHP
 
+> 需要 PHP 8.0 或更高版本。SDK 兼容 PHP 8.0 和 8.1，但这两个版本已不再获得 PHP 官方安全修复；生产环境应使用仍受官方支持的 PHP 版本。
+
 ```bash
 composer require waffo/waffo-php
 ```

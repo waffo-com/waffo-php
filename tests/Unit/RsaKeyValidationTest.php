@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Waffo\Tests\Unit;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Waffo\Crypto\Rsa;
 use Waffo\Exception\WaffoError;
@@ -12,6 +11,14 @@ use Waffo\Tests\Support\FixtureKeys;
 
 final class RsaKeyValidationTest extends TestCase
 {
+    private const EC_PRIVATE_KEY = <<<'PEM'
+-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgYnRIGzX4kUfM272F
+pT5Hvv+YvACeGiGpUoiCT2cDXq6hRANCAAT54WCfdvdy/IVbCH9O/UnvgkZfa/FG
+8HI4dGP+kwGuOBWujXpesG+HgWIy9LNGI4epxknboZcXsiQJS+rrpzbw
+-----END PRIVATE KEY-----
+PEM;
+
     /** @return iterable<string, array{string}> */
     public static function unsupportedPrivateKeyPemLabels(): iterable
     {
@@ -21,7 +28,7 @@ final class RsaKeyValidationTest extends TestCase
         yield 'encrypted PKCS#8 PEM label' => [self::pem($privateKey, 'ENCRYPTED PRIVATE KEY')];
     }
 
-    #[DataProvider('unsupportedPrivateKeyPemLabels')]
+    /** @dataProvider unsupportedPrivateKeyPemLabels */
     public function testRejectsUnsupportedPrivateKeyPemLabels(string $privateKey): void
     {
         try {
@@ -36,14 +43,9 @@ final class RsaKeyValidationTest extends TestCase
 
     public function testRejectsNonRsaPrivateKey(): void
     {
-        $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_EC, 'curve_name' => 'prime256v1']);
-        self::assertNotFalse($key);
-        $pem = '';
-        self::assertTrue(openssl_pkey_export($key, $pem));
-
         $this->expectException(WaffoError::class);
         $this->expectExceptionMessage('expected an unencrypted PKCS#8 RSA key');
-        Rsa::assertPrivateKey($pem);
+        Rsa::assertPrivateKey(self::EC_PRIVATE_KEY);
     }
 
     private static function pem(string $base64Body, string $label): string

@@ -10,7 +10,7 @@ use Waffo\Response\ApiResponse;
 
 final class E2EArtifactRecorder
 {
-    private readonly string $eventsPath;
+    private string $eventsPath;
 
     public function __construct()
     {
@@ -18,7 +18,7 @@ final class E2EArtifactRecorder
         if (!is_string($directory) || $directory === '') {
             $directory = sys_get_temp_dir() . '/waffo-php-e2e-artifacts';
         }
-        if (!is_dir($directory) && !mkdir($directory, 0o755, true) && !is_dir($directory)) {
+        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
             throw new \RuntimeException("Unable to create E2E artifact directory: {$directory}");
         }
         $this->eventsPath = rtrim($directory, DIRECTORY_SEPARATOR) . '/events.ndjson';

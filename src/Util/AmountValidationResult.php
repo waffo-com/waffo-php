@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Waffo\Util;
 
-final readonly class AmountValidationResult
+final class AmountValidationResult
 {
     private function __construct(
         public bool $valid,

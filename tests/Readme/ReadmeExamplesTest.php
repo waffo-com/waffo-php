@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Waffo\Tests\Readme;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Waffo\Config\WaffoConfig;
 use Waffo\Crypto\Rsa;
@@ -22,7 +21,7 @@ final class ReadmeExamplesTest extends TestCase
         yield 'Chinese' => [__DIR__ . '/../../README_CN.md', 31];
     }
 
-    #[DataProvider('packageReadmes')]
+    /** @dataProvider packageReadmes */
     public function testFrameworkIntegrationIsPhpOnly(string $readme): void
     {
         $content = file_get_contents($readme);
@@ -43,7 +42,7 @@ final class ReadmeExamplesTest extends TestCase
         self::assertDoesNotMatchRegularExpression('/```(?:typescript|java)\b/', $frameworks, $readme);
     }
 
-    #[DataProvider('packageReadmes')]
+    /** @dataProvider packageReadmes */
     public function testPackageReadmeContainsNoForeignSdkCodeFences(string $readme): void
     {
         $content = file_get_contents($readme);
@@ -55,7 +54,7 @@ final class ReadmeExamplesTest extends TestCase
         );
     }
 
-    #[DataProvider('packageReadmes')]
+    /** @dataProvider packageReadmes */
     public function testEveryPhpSnippetHasValidSyntax(string $readme, int $expectedCount): void
     {
         $content = file_get_contents($readme);

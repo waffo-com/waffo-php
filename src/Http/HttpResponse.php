@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Waffo\Http;
 
-final readonly class HttpResponse
+final class HttpResponse
 {
     /** @param array<string, list<string>> $headers */
     public function __construct(

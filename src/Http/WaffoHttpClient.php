@@ -20,9 +20,9 @@ final class WaffoHttpClient
 {
     public const API_VERSION = '1.0.0';
 
-    private readonly HttpTransport $transport;
+    private HttpTransport $transport;
 
-    public function __construct(private readonly WaffoConfig $config)
+    public function __construct(private WaffoConfig $config)
     {
         $this->transport = $config->httpTransport ?? new CurlHttpTransport();
     }

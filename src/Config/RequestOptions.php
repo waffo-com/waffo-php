@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Waffo\Config;
 
-final readonly class RequestOptions
+final class RequestOptions
 {
     public function __construct(
         public ?int $connectTimeoutMs = null,

@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+## [0.2.0] - 2026-08-27
+
+### Changed
+
+- Lower the minimum runtime to PHP 8.0 while keeping one Composer package for PHP 8.0 through PHP 8.5.
+- Preserve documented environment constants and backed-value helpers through PHP 8.0-compatible value objects.
+- Extend CI and package smoke coverage to the minimum and current PHP runtimes.
+
+### Compatibility note
+
+- `Environment` and `WebhookEventType` are value objects rather than native `BackedEnum` implementations so one source package remains parseable on PHP 8.0. Constant-based SDK configuration and the documented value helpers are preserved; enum reflection, `instanceof BackedEnum`, and direct enum-case property access on constants are not.
+- Types that used PHP 8.1 `readonly` syntax are mutable at the language level on the PHP 8.0-compatible codebase. Consumers should continue to treat SDK configuration and value objects as immutable after construction.
+
 ## [0.1.0] - 2026-08-22
 
 ### Added

@@ -7,7 +7,7 @@ namespace Waffo\Tests\E2E;
 use Waffo\Config\Environment;
 use Waffo\Config\WaffoConfig;
 
-final readonly class E2EConfig
+final class E2EConfig
 {
     public function __construct(
         public string $apiKey,

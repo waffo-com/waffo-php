@@ -13,8 +13,8 @@ use Waffo\Response\ApiResponse;
 abstract class BaseResource
 {
     public function __construct(
-        protected readonly WaffoHttpClient $httpClient,
-        private readonly string $basePath,
+        protected WaffoHttpClient $httpClient,
+        private string $basePath,
     ) {
     }
 

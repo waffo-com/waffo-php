@@ -87,7 +87,7 @@ abstract class AbstractModel implements JsonSerializable
             return $value->toArray();
         }
         if (is_array($value)) {
-            return array_map(self::normalizeValue(...), $value);
+            return array_map(static fn (mixed $item): mixed => self::normalizeValue($item), $value);
         }
 
         return $value;

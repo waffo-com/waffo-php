@@ -10,9 +10,9 @@ use Throwable;
 class WaffoError extends RuntimeException
 {
     public function __construct(
-        public readonly string $errorCode,
+        public string $errorCode,
         string $message,
-        public readonly ?Throwable $errorCause = null,
+        public ?Throwable $errorCause = null,
     ) {
         parent::__construct($message, 0, $errorCause);
     }

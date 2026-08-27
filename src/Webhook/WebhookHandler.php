@@ -29,23 +29,23 @@ final class WebhookHandler
     /** @var null|Closure(array<string, mixed>): mixed */
     private ?Closure $subscriptionPaymentFallback = null;
 
-    public function __construct(private readonly WaffoConfig $config)
+    public function __construct(private WaffoConfig $config)
     {
     }
 
     public function onPayment(callable $handler): self
     {
-        return $this->register(WebhookEventType::Payment, $handler);
+        return $this->register(WebhookEventType::from(WebhookEventType::Payment), $handler);
     }
 
     public function onRefund(callable $handler): self
     {
-        return $this->register(WebhookEventType::Refund, $handler);
+        return $this->register(WebhookEventType::from(WebhookEventType::Refund), $handler);
     }
 
     public function onSubscriptionStatus(callable $handler): self
     {
-        return $this->register(WebhookEventType::SubscriptionStatus, $handler);
+        return $this->register(WebhookEventType::from(WebhookEventType::SubscriptionStatus), $handler);
     }
 
     public function onSubscriptionPayment(callable $handler): self
@@ -57,12 +57,12 @@ final class WebhookHandler
 
     public function onSubscriptionPeriodChanged(callable $handler): self
     {
-        return $this->register(WebhookEventType::SubscriptionPeriodChanged, $handler);
+        return $this->register(WebhookEventType::from(WebhookEventType::SubscriptionPeriodChanged), $handler);
     }
 
     public function onSubscriptionChange(callable $handler): self
     {
-        return $this->register(WebhookEventType::SubscriptionChange, $handler);
+        return $this->register(WebhookEventType::from(WebhookEventType::SubscriptionChange), $handler);
     }
 
     public function verifySignature(string $body, string $signature): bool
@@ -100,7 +100,7 @@ final class WebhookHandler
             }
 
             $handler = $this->handlers[$eventType->value] ?? null;
-            if ($handler === null && $eventType === WebhookEventType::SubscriptionStatus) {
+            if ($handler === null && $eventType->value === WebhookEventType::SubscriptionStatus) {
                 $handler = $this->subscriptionPaymentFallback;
             }
             if ($handler !== null) {

@@ -9,6 +9,11 @@ trap 'rm -rf "$SMOKE_DIR"' EXIT
 ARCHIVE_DIR="$SMOKE_DIR/archive"
 PACKAGE_EXTRACT_DIR="$SMOKE_DIR/package"
 CONSUMER_DIR="$SMOKE_DIR/consumer"
+EXPECTED_SDK_VERSION="$(sed -n "s/.*public const VERSION = '\([^']*\)'.*/\1/p" "$PACKAGE_DIR/src/Version.php")"
+if [ -z "$EXPECTED_SDK_VERSION" ]; then
+  echo "错误: 无法从 Version.php 读取 SDK 版本。" >&2
+  exit 1
+fi
 mkdir -p "$ARCHIVE_DIR" "$PACKAGE_EXTRACT_DIR" "$CONSUMER_DIR"
 
 cd "$PACKAGE_DIR"
@@ -25,4 +30,4 @@ cd "$CONSUMER_DIR"
 composer init --no-interaction --name=waffo/package-smoke
 composer config --json repositories.waffo "{\"type\":\"path\",\"url\":\"$PACKAGE_EXTRACT_DIR\",\"options\":{\"symlink\":false}}"
 composer require --no-interaction waffo/waffo-php:@dev
-php -r "require 'vendor/autoload.php'; if (Waffo\\Version::VERSION !== '0.1.0') { exit(1); } echo Waffo\\Version::SDK_HEADER, PHP_EOL;"
+php -r 'require "vendor/autoload.php"; if (Waffo\Version::VERSION !== $argv[1]) { fwrite(STDERR, "SDK version mismatch\n"); exit(1); } echo Waffo\Version::SDK_HEADER, PHP_EOL;' "$EXPECTED_SDK_VERSION"
