@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-04
+
+### Added
+
+- Added typed `topupInfo` request and response models to `subscription()->update()` for charging a current-period add-on while preserving the subscription billing schedule.
+
 ## [0.2.0] - 2026-08-27
 
 ### Changed

@@ -453,15 +453,25 @@ if ($response->isSuccess()) {
 
 #### Update Subscription
 
-Update the billing amounts of an active subscription without re-authorization. Provide `subscriptionRequest` or `subscriptionId`, and at least one of `amount` or `productInfo.scheduledAmounts`. Changes take effect from the next billing period.
+Update the billing amounts of an active subscription without re-authorization. Provide `subscriptionRequest` or `subscriptionId`. To charge a seat add-on immediately, include `topupInfo`; the updated billing amounts take effect from the next billing period.
 
 ```php
 <?php
 
-$response = $waffo->subscription()->update(['subscriptionRequest' => 'sub-request-1', 'amount' => '8.99']);
+$response = $waffo->subscription()->update([
+    'subscriptionId' => 'subscription_id',
+    'amount' => '129.00',
+    'topupInfo' => [
+        'topupRequest' => 'mimo-topup-001',
+        'topupAmount' => '30.00',
+        'description' => 'Seat add-on 3 seats',
+        'orderExpiredAt' => '2030-01-01T00:00:00Z',
+    ],
+]);
 
 if ($response->isSuccess()) {
-    var_dump($response->data);
+    echo 'Top-up Order: ' . $response->data?->topupInfo?->acquiringOrderId . PHP_EOL;
+    echo 'Top-up Status: ' . $response->data?->topupInfo?->topupStatus . PHP_EOL;
 }
 ```
 

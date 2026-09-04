@@ -128,6 +128,44 @@ final class ReadmeExamplesTest extends TestCase
         self::assertTrue($called);
     }
 
+    public function testSubscriptionTopupUpdateExampleExecutesOffline(): void
+    {
+        $keys = FixtureKeys::load();
+        $transport = new FakeHttpTransport(new HttpResponse(
+            200,
+            [],
+            '{"code":"0","message":"success","data":{"topupInfo":{'
+                . '"acquiringOrderId":"A_TOPUP_001","topupStatus":"AUTHORIZATION_REQUIRED"}}}',
+        ));
+        $waffo = new Waffo(new WaffoConfig(
+            'api-key',
+            $keys['privateKey'],
+            $keys['publicKey'],
+            merchantId: 'merchant-id',
+            httpTransport: $transport,
+        ));
+
+        $response = $waffo->subscription()->update([
+            'subscriptionId' => 'subscription_id',
+            'amount' => '129.00',
+            'topupInfo' => [
+                'topupRequest' => 'mimo-topup-001',
+                'topupAmount' => '30.00',
+                'description' => 'Seat add-on 3 seats',
+                'orderExpiredAt' => '2030-01-01T00:00:00Z',
+            ],
+        ]);
+
+        self::assertTrue($response->isSuccess());
+        self::assertSame('A_TOPUP_001', $response->data->topupInfo->acquiringOrderId);
+        self::assertSame('AUTHORIZATION_REQUIRED', $response->data->topupInfo->topupStatus);
+        self::assertCount(1, $transport->requests);
+        self::assertStringEndsWith('/subscription/update', $transport->requests[0]->url);
+        $request = json_decode($transport->requests[0]->body, true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('mimo-topup-001', $request['topupInfo']['topupRequest']);
+        self::assertSame('30.00', $request['topupInfo']['topupAmount']);
+    }
+
     public function testOperationExamplesUseValidRequestFieldNames(): void
     {
         foreach (self::packageReadmes() as [$readme]) {

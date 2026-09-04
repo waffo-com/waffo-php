@@ -2185,12 +2185,14 @@ final class SubscriptionUpdateRequest extends AbstractModel
         'subscriptionId' => ['property' => 'subscriptionId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'amount' => ['property' => 'amount', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'productInfo' => ['property' => 'productInfo', 'type' => 'SubscriptionUpdateRequest_ProductInfo', 'required' => false, 'ref' => 'SubscriptionUpdateRequest.ProductInfo', 'itemsRef' => null],
+        'topupInfo' => ['property' => 'topupInfo', 'type' => 'SubscriptionUpdateRequest_TopupInfo', 'required' => false, 'ref' => 'SubscriptionUpdateRequest.TopupInfo', 'itemsRef' => null],
     ];
 
     public ?string $subscriptionRequest = null;
     public ?string $subscriptionId = null;
     public ?string $amount = null;
     public ?SubscriptionUpdateRequest_ProductInfo $productInfo = null;
+    public ?SubscriptionUpdateRequest_TopupInfo $topupInfo = null;
 }
 
 final class SubscriptionUpdateRequest_ProductInfo extends AbstractModel
@@ -2205,6 +2207,21 @@ final class SubscriptionUpdateRequest_ProductInfo extends AbstractModel
     public ?array $scheduledAmounts = null;
 }
 
+final class SubscriptionUpdateRequest_TopupInfo extends AbstractModel
+{
+    public const SCHEMA = [
+        'topupRequest' => ['property' => 'topupRequest', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupAmount' => ['property' => 'topupAmount', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'description' => ['property' => 'description', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'orderExpiredAt' => ['property' => 'orderExpiredAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+    ];
+
+    public ?string $topupRequest = null;
+    public ?string $topupAmount = null;
+    public ?string $description = null;
+    public ?string $orderExpiredAt = null;
+}
+
 final class SubscriptionUpdateResponse extends AbstractModel
 {
     public const SCHEMA = [
@@ -2217,6 +2234,7 @@ final class SubscriptionUpdateResponse extends AbstractModel
         'previousScheduledAmounts' => ['property' => 'previousScheduledAmounts', 'type' => 'array', 'required' => false, 'ref' => null, 'itemsRef' => 'SubscriptionScheduledAmount'],
         'newScheduledAmounts' => ['property' => 'newScheduledAmounts', 'type' => 'array', 'required' => false, 'ref' => null, 'itemsRef' => 'SubscriptionScheduledAmount'],
         'nextEffectivePeriod' => ['property' => 'nextEffectivePeriod', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupInfo' => ['property' => 'topupInfo', 'type' => 'SubscriptionUpdateResponse_TopupInfo', 'required' => false, 'ref' => 'SubscriptionUpdateResponse.TopupInfo', 'itemsRef' => null],
     ];
 
     public ?string $subscriptionId = null;
@@ -2230,6 +2248,24 @@ final class SubscriptionUpdateResponse extends AbstractModel
     /** @var list<SubscriptionScheduledAmount>|null */
     public ?array $newScheduledAmounts = null;
     public ?string $nextEffectivePeriod = null;
+    public ?SubscriptionUpdateResponse_TopupInfo $topupInfo = null;
+}
+
+final class SubscriptionUpdateResponse_TopupInfo extends AbstractModel
+{
+    public const SCHEMA = [
+        'acquiringOrderId' => ['property' => 'acquiringOrderId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupRequest' => ['property' => 'topupRequest', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupAmount' => ['property' => 'topupAmount', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupStatus' => ['property' => 'topupStatus', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupAction' => ['property' => 'topupAction', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+    ];
+
+    public ?string $acquiringOrderId = null;
+    public ?string $topupRequest = null;
+    public ?string $topupAmount = null;
+    public ?string $topupStatus = null;
+    public ?string $topupAction = null;
 }
 
 final class UserInfo extends AbstractModel

@@ -461,15 +461,25 @@ if ($response->isSuccess()) {
 
 #### 更新订阅
 
-在不重新授权的情况下更新生效订阅的计费金额。提供 `subscriptionRequest` 或 `subscriptionId`，且 `amount` 与 `productInfo.scheduledAmounts` 至少提供一个。变更从下一个计费周期生效。
+在不重新授权的情况下更新生效订阅的计费金额。提供 `subscriptionRequest` 或 `subscriptionId`。需要立即收取增购补差时传入 `topupInfo`，更新后的计费金额从下一个计费周期生效。
 
 ```php
 <?php
 
-$response = $waffo->subscription()->update(['subscriptionRequest' => 'sub-request-1', 'amount' => '8.99']);
+$response = $waffo->subscription()->update([
+    'subscriptionId' => 'subscription_id',
+    'amount' => '129.00',
+    'topupInfo' => [
+        'topupRequest' => 'mimo-topup-001',
+        'topupAmount' => '30.00',
+        'description' => '增购 3 个席位',
+        'orderExpiredAt' => '2030-01-01T00:00:00Z',
+    ],
+]);
 
 if ($response->isSuccess()) {
-    var_dump($response->data);
+    echo '补差订单: ' . $response->data?->topupInfo?->acquiringOrderId . PHP_EOL;
+    echo '补差状态: ' . $response->data?->topupInfo?->topupStatus . PHP_EOL;
 }
 ```
 

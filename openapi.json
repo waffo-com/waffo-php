@@ -1038,6 +1038,10 @@
           "productInfo": {
             "$ref": "#/components/schemas/SubscriptionUpdateRequest.ProductInfo",
             "description": "Subscription product info"
+          },
+          "topupInfo": {
+            "$ref": "#/components/schemas/SubscriptionUpdateRequest.TopupInfo",
+            "description": "Seat add-on top-up info. When provided, this update becomes a seat add-on: charge the top-up amount immediately and adjust the amount above from the next period."
           }
         }
       },
@@ -1058,6 +1062,39 @@
             "items": {
               "$ref": "#/components/schemas/SubscriptionScheduledAmount"
             }
+          }
+        }
+      },
+      "SubscriptionUpdateRequest.TopupInfo": {
+        "type": "object",
+        "description": "Seat add-on top-up info",
+        "properties": {
+          "topupRequest": {
+            "type": "string",
+            "description": "Idempotency key for this top-up, for example mimo-topup-001. Allowed characters: letters, digits and hyphen.",
+            "example": "mimo-topup-001",
+            "maxLength": 32,
+            "minLength": 0
+          },
+          "topupAmount": {
+            "type": "string",
+            "description": "Top-up amount to charge for the current period, calculated by the merchant. Must be greater than 0.",
+            "example": 30.0,
+            "maxLength": 24,
+            "minLength": 0
+          },
+          "description": {
+            "type": "string",
+            "description": "Order description of the top-up charge, shown on cashier and billing.",
+            "example": "Seat add-on 3 seats",
+            "maxLength": 256,
+            "minLength": 0
+          },
+          "orderExpiredAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Top-up order expiry time (cashier session deadline) in ISO8601. If empty, defaults to now plus the configured minutes.",
+            "example": "2026-08-18T10:30:00+08:00"
           }
         }
       },
@@ -1122,6 +1159,36 @@
           "nextEffectivePeriod": {
             "type": "string",
             "description": "The next period number when the new amount takes effect"
+          },
+          "topupInfo": {
+            "$ref": "#/components/schemas/SubscriptionUpdateResponse.TopupInfo",
+            "description": "Seat add-on top-up result, present only when the request carries topupInfo"
+          }
+        }
+      },
+      "SubscriptionUpdateResponse.TopupInfo": {
+        "type": "object",
+        "description": "Seat add-on top-up result",
+        "properties": {
+          "acquiringOrderId": {
+            "type": "string",
+            "description": "Waffo acquiring order id of the top-up charge"
+          },
+          "topupRequest": {
+            "type": "string",
+            "description": "Idempotency key echoed from request"
+          },
+          "topupAmount": {
+            "type": "string",
+            "description": "Top-up amount charged for the current period"
+          },
+          "topupStatus": {
+            "type": "string",
+            "description": "Top-up charge order status, for example AUTHORIZATION_REQUIRED"
+          },
+          "topupAction": {
+            "type": "string",
+            "description": "Structured order action, merchant redirects user to cashier with it"
           }
         }
       },
