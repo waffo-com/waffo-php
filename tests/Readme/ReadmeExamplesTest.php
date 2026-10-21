@@ -17,8 +17,8 @@ final class ReadmeExamplesTest extends TestCase
     /** @return iterable<string, array{string, positive-int}> */
     public static function packageReadmes(): iterable
     {
-        yield 'English' => [__DIR__ . '/../../README.md', 31];
-        yield 'Chinese' => [__DIR__ . '/../../README_CN.md', 31];
+        yield 'English' => [__DIR__ . '/../../README.md', 33];
+        yield 'Chinese' => [__DIR__ . '/../../README_CN.md', 33];
     }
 
     /** @dataProvider packageReadmes */
@@ -81,7 +81,7 @@ final class ReadmeExamplesTest extends TestCase
             $content = file_get_contents(__DIR__ . '/' . $relative);
             self::assertNotFalse($content);
             preg_match_all('/<!-- tabs:start -->([\s\S]*?)<!-- tabs:end -->/', $content, $matches);
-            self::assertCount(29, $matches[1]);
+            self::assertCount(31, $matches[1]);
             foreach ($matches[1] as $index => $tabs) {
                 self::assertMatchesRegularExpression('/####\s*\*\*PHP\*\*/', $tabs, "tabs block {$index}");
             }
@@ -180,5 +180,21 @@ final class ReadmeExamplesTest extends TestCase
             self::assertStringContainsString("'periodType' => 'MONTHLY', 'periodInterval' => '12'", $content, $readme);
             self::assertStringNotContainsString("'periodType' => 'YEARLY'", $content, $readme);
         }
+    }
+
+    public function testCustomEventExampleRunsWithoutNetwork(): void
+    {
+        $keys = FixtureKeys::load();
+        $received = null;
+        $handler = (new \Waffo\Webhook\WebhookHandler(new WaffoConfig('readme-test', $keys['privateKey'], $keys['publicKey'])))
+            ->onEvent('EXAMPLE_CUSTOM_NOTIFICATION', static function (array $notification) use (&$received): void {
+                $received = $notification;
+            });
+        $body = '{"eventType":"EXAMPLE_CUSTOM_NOTIFICATION","result":{"id":"demo"}}';
+        $result = $handler->handleWebhook($body, Rsa::sign($body, $keys['privateKey']));
+        self::assertTrue($result->success, (string) $result->error);
+        self::assertSame(['eventType' => 'EXAMPLE_CUSTOM_NOTIFICATION', 'result' => ['id' => 'demo']], $received);
+        self::assertSame('{"message":"success"}', $result->responseBody);
+        self::assertTrue(Rsa::verify($result->responseBody, $result->responseSignature, $keys['publicKey']));
     }
 }

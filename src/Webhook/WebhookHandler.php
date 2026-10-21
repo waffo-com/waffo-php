@@ -9,6 +9,7 @@ use JsonException;
 use Throwable;
 use Waffo\Config\WaffoConfig;
 use Waffo\Crypto\Rsa;
+use Waffo\Exception\WaffoError;
 use Waffo\Util\Json;
 
 final class WebhookHandler
@@ -65,6 +66,20 @@ final class WebhookHandler
         return $this->register(WebhookEventType::from(WebhookEventType::SubscriptionChange), $handler);
     }
 
+    /** Register an exact custom name before receiving webhooks; later registration replaces it. */
+    public function onEvent(string $eventType, callable $handler): self
+    {
+        if (trim($eventType) === '') {
+            throw new WaffoError('S0006', 'Custom event name must not be blank');
+        }
+        if (in_array($eventType, self::EVENT_TYPES, true)) {
+            throw new WaffoError('S0006', 'Use the dedicated handler for built-in event: ' . $eventType);
+        }
+        $this->handlers[$eventType] = Closure::fromCallable($handler);
+
+        return $this;
+    }
+
     public function verifySignature(string $body, string $signature): bool
     {
         return Rsa::verify($body, $signature, $this->config->waffoPublicKey);
@@ -91,7 +106,13 @@ final class WebhookHandler
                 return $this->failed('Unknown event type');
             }
             if (!in_array($eventTypeValue, self::EVENT_TYPES, true)) {
-                return $this->failed("Unknown event type: {$eventTypeValue}");
+                $handler = $this->handlers[$eventTypeValue] ?? null;
+                if ($handler === null) {
+                    return $this->failed("Unknown event type: {$eventTypeValue}");
+                }
+                $handler($notification);
+
+                return $this->succeeded();
             }
 
             $eventType = WebhookEventType::tryFrom($eventTypeValue);

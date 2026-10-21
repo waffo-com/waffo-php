@@ -47,6 +47,7 @@ Waffo SDK 是 [Waffo 支付平台](https://www.waffo.com) 的**官方 SDK 集合
 - [Webhook 处理](#webhook-处理)
 - [支付方式类型](#支付方式类型)
 - [高级配置](#高级配置)（含[配置 DNS 缓存 TTL](#配置-dns-缓存-ttl)）
+- [开放业务取值与自定义事件](#开放业务取值与自定义事件)
 - [处理新增 API 字段 (ExtraParams)](#处理新增-api-字段-extraparams)
 - [错误处理](#错误处理)
 - [开发](#开发)
@@ -885,6 +886,50 @@ Waffo API 的 IP 地址不保证是固定的。为保障高可用性，Waffo 采
 - **AWS ALB / 云负载均衡器**：大多数云负载均衡器会自动处理 DNS 重新解析。请查阅您的云服务商文档进行确认。
 
 - **CDN / API 网关**：如果您通过 Cloudflare、AWS API Gateway 或类似服务路由流量，请确保其 DNS TTL 设置符合您的需求。
+
+## 开放业务取值与自定义事件
+
+业务字段接受任意字符串并保留原值，包括新增状态、币种、产品、周期及动作；已知常量仅提供便利取值。解析成功或 API code 成功不代表支付完成，商户仍须明确判断对应业务状态。
+
+### 兼容读取协议原值
+
+以下离线示例使用 SDK 的真实模型与访问方法。`FUTURE_STATUS` 是合成值，不代表服务端支持；解析或 API code 成功不代表业务成功。
+
+```php
+<?php
+require __DIR__ . '/vendor/autoload.php';
+
+use Waffo\Model\Generated\PaymentDetail;
+
+$detail = PaymentDetail::fromArray(['orderStatus' => 'INIT']);
+echo $detail->orderStatus, PHP_EOL;
+```
+
+`WebhookEventType` 和具体内置通知类型保留已知事件目录。未知事件只有精确注册后才执行商户代码，否则返回签名失败应答。接收回调前完成注册；映射属于实例、名称区分大小写、同名后注册覆盖。内置名称使用对应专用方法；空白名称、无效回调和配置在注册时报 `S0006`，PHP 的非 callable 参数由语言抛 `TypeError`。
+
+Java、Python、PHP 扩展回调须同步完成，PHP Promise/生成器回调不受支持。Python 在注册时拒绝 async 函数，意外返回 awaitable 时失败应答；Node.js 明确支持 Promise 回调。
+
+以下完整示例以**未经修改的 UTF-8 原始报文文件**为首个参数，以 `WAFFO_WEBHOOK_SIGNATURE` 为请求签名。通过获授权配置提供 `WAFFO_API_KEY`、`WAFFO_PRIVATE_KEY`、`WAFFO_PUBLIC_KEY` 及 Java/Python 所需的 `WAFFO_MERCHANT_ID`。示例输出签名应答 header/body；实际 HTTP 适配器须以 HTTP 200 返回这些原始字节及 `X-SIGNATURE`。`EXAMPLE_CUSTOM_NOTIFICATION` 仅为离线示例名；须替换为真实事件，并按其契约编写业务动作。处理失败时抛异常、reject 或返回 error；Node.js 等待回调完成，Go 将 error/panic 转为失败应答。
+
+```php
+<?php
+require __DIR__ . '/vendor/autoload.php';
+
+use Waffo\Config\WaffoConfig;
+use Waffo\Webhook\WebhookHandler;
+
+$handler = (new WebhookHandler(WaffoConfig::fromEnvironment()))
+    ->onEvent('EXAMPLE_CUSTOM_NOTIFICATION', static function (array $notification): void {
+        // Validate the event's documented fields and perform your business action here.
+        fwrite(STDERR, 'Handled custom event: ' . $notification['eventType'] . PHP_EOL);
+    });
+$body = file_get_contents($argv[1]);
+if ($body === false) throw new RuntimeException('Cannot read webhook body');
+$result = $handler->handleWebhook($body, getenv('WAFFO_WEBHOOK_SIGNATURE') ?: null);
+if (!$result->success) fwrite(STDERR, (string) $result->error . PHP_EOL);
+echo 'X-SIGNATURE: ' . $result->responseSignature . PHP_EOL;
+echo $result->responseBody . PHP_EOL;
+```
 
 ## 处理新增 API 字段 (ExtraParams)
 

@@ -1361,7 +1361,7 @@
           },
           "orderStatus": {
             "type": "string",
-            "description": "Subscription Payment status\n- PAY_SUCCESS \n- ORDER_CLOSE (payment failed)\n"
+            "description": "Subscription Payment status\n- PAY_SUCCESS \n- ORDER_CLOSE (payment failed)\n Known values include INIT for an unpaid period. These are known values, not a closed set; SDKs must preserve other string values."
           },
           "orderUpdatedAt": {
             "type": "string",

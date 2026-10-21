@@ -55,6 +55,7 @@ Waffo SDK is the **official SDK collection** for [Waffo Payment Platform](https:
 - [Payment Method Types](#payment-method-types)
 - [Advanced Configuration](#advanced-configuration)
 - [Configuring DNS Cache TTL](#configuring-dns-cache-ttl)
+- [Open Business Values and Custom Events](#open-business-values-and-custom-events)
 - [Handling New API Fields (ExtraParams)](#handling-new-api-fields-extraparams)
 - [Error Handling](#error-handling)
 - [Development](#development)
@@ -871,6 +872,50 @@ If your requests to Waffo API go through a reverse proxy or load balancer, check
 - **AWS ALB / Cloud Load Balancers**: Most cloud load balancers handle DNS re-resolution automatically. Verify your provider's documentation to confirm.
 
 - **CDN / API Gateways**: If you route traffic through Cloudflare, AWS API Gateway, or similar services, ensure their DNS TTL settings align with your requirements.
+
+## Open Business Values and Custom Events
+
+Business fields accept arbitrary strings and preserve their original value, including new statuses, currencies, products, periods and actions. The known constants are convenience values. A parsed response or a successful API code does not establish payment success; compare the relevant business status explicitly.
+
+### Read protocol values without changing existing calls
+
+These offline examples show the real SDK model/accessor APIs. `FUTURE_STATUS` is synthetic and does not declare server support. Parsing or API code success does not establish business success.
+
+```php
+<?php
+require __DIR__ . '/vendor/autoload.php';
+
+use Waffo\Model\Generated\PaymentDetail;
+
+$detail = PaymentDetail::fromArray(['orderStatus' => 'INIT']);
+echo $detail->orderStatus, PHP_EOL;
+```
+
+`WebhookEventType` and concrete built-in notification types remain the known event catalogue. Unknown events return a signed failure unless your application registers that exact name. Register before serving callbacks; custom registrations are per instance, case-sensitive, and a later registration replaces the same name. Built-in names use their dedicated methods. Blank names and invalid callbacks/configuration fail at registration with `S0006`; PHP rejects non-callable arguments with its native `TypeError`.
+
+Java, Python and PHP custom callbacks must complete synchronously; PHP Promise/generator callbacks are unsupported. Python rejects async functions at registration and returns failure for an unexpected awaitable result. Node.js explicitly supports Promise callbacks.
+
+The examples below take the **raw, unmodified UTF-8 body file** as their first argument and `WAFFO_WEBHOOK_SIGNATURE` as the request signature. Set `WAFFO_API_KEY`, `WAFFO_PRIVATE_KEY`, `WAFFO_PUBLIC_KEY` and Java/Python's `WAFFO_MERCHANT_ID` using your authorized configuration. They print the signed response header/body; in your HTTP adapter send those bytes with HTTP 200 and the `X-SIGNATURE` header. `EXAMPLE_CUSTOM_NOTIFICATION` is an offline example name: replace it and implement your business action against the event's real contract. Reject/throw/return an error if processing fails; Node.js awaits the callback, and Go converts callback errors or panics into failure responses.
+
+```php
+<?php
+require __DIR__ . '/vendor/autoload.php';
+
+use Waffo\Config\WaffoConfig;
+use Waffo\Webhook\WebhookHandler;
+
+$handler = (new WebhookHandler(WaffoConfig::fromEnvironment()))
+    ->onEvent('EXAMPLE_CUSTOM_NOTIFICATION', static function (array $notification): void {
+        // Validate the event's documented fields and perform your business action here.
+        fwrite(STDERR, 'Handled custom event: ' . $notification['eventType'] . PHP_EOL);
+    });
+$body = file_get_contents($argv[1]);
+if ($body === false) throw new RuntimeException('Cannot read webhook body');
+$result = $handler->handleWebhook($body, getenv('WAFFO_WEBHOOK_SIGNATURE') ?: null);
+if (!$result->success) fwrite(STDERR, (string) $result->error . PHP_EOL);
+echo 'X-SIGNATURE: ' . $result->responseSignature . PHP_EOL;
+echo $result->responseBody . PHP_EOL;
+```
 
 ## Handling New API Fields (ExtraParams)
 

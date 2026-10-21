@@ -1,6 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [0.4.0] - 2026-10-21
+
+### Added
+
+- `onEvent(string, callable)` explicitly registers custom webhook names and receives the complete verified notification. Unknown unregistered events still fail. Built-in names use dedicated registration methods; invalid callable types retain PHP's native `TypeError`.
 
 ## [0.3.0] - 2026-09-04
 
