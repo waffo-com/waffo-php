@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0] - 2026-11-04
+
+### Changed
+
+- **Breaking Wallet response model:** generated `WalletInquiryResponse` declares only `paymentOptions`; replace typed top-level `network`, `asset`, `payTo` usage with an explicitly selected nested `WalletInquiryResponse_PaymentOption`. Optional `decimals` distinguishes zero from missing/null.
+- Signed responses, executable README examples and local HTTP contract E2E cover the new optional array. Existing Sandbox/x402 consumers select the configured network. This release intentionally removes the old typed fields under the approved pre-1.0 version policy.
+
+
 ## [0.4.0] - 2026-10-21
 
 ### Added

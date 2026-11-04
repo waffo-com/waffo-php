@@ -979,20 +979,39 @@
         "type": "object",
         "description": "Wallet / on-chain receiving address inquiry response",
         "properties": {
+          "paymentOptions": {
+            "type": "array",
+            "description": "All receiving options available to the merchant, one per network.",
+            "items": {
+              "$ref": "#/components/schemas/WalletInquiryResponse.PaymentOption"
+            }
+          }
+        }
+      },
+      "WalletInquiryResponse.PaymentOption": {
+        "type": "object",
+        "description": "One on-chain receiving option",
+        "properties": {
           "network": {
             "type": "string",
-            "description": "CAIP-2 network id. Phase 1 Base mainnet eip155:8453.",
+            "description": "CAIP-2 network id, e.g. eip155:8453 (Base mainnet) or eip155:4217 (Tempo mainnet).",
             "example": "eip155:8453"
           },
           "asset": {
             "type": "string",
-            "description": "On-chain token contract address for the network + currency (Base + USDC → USDC contract).",
+            "description": "On-chain token contract address for the network + currency.",
             "example": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
           },
           "payTo": {
             "type": "string",
             "description": "Waffo / platform receiving wallet address. Not supplied by merchant/Agent.",
             "example": "0x..."
+          },
+          "decimals": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Token decimals, used to convert the order amount to atomic units.",
+            "example": 6
           }
         }
       },

@@ -2303,14 +2303,26 @@ final class WalletInquiryReq extends AbstractModel
 final class WalletInquiryResponse extends AbstractModel
 {
     public const SCHEMA = [
+        'paymentOptions' => ['property' => 'paymentOptions', 'type' => 'array', 'required' => false, 'ref' => null, 'itemsRef' => 'WalletInquiryResponse.PaymentOption'],
+    ];
+
+    /** @var list<WalletInquiryResponse_PaymentOption>|null */
+    public ?array $paymentOptions = null;
+}
+
+final class WalletInquiryResponse_PaymentOption extends AbstractModel
+{
+    public const SCHEMA = [
         'network' => ['property' => 'network', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'asset' => ['property' => 'asset', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'payTo' => ['property' => 'payTo', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'decimals' => ['property' => 'decimals', 'type' => 'int', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $network = null;
     public ?string $asset = null;
     public ?string $payTo = null;
+    public ?int $decimals = null;
 }
 
 final class X402Info extends AbstractModel

@@ -100,11 +100,19 @@ final class SandboxApiE2ETest extends TestCase
             "{$case}/inquiry failed: paymentRequestId={$paymentRequestId}, response="
                 . E2EArtifactRecorder::formatResponse($response),
         );
-        $responseDebug = E2EArtifactRecorder::formatResponse($response);
+        $responseDebug = "paymentRequestId={$paymentRequestId}, response=" . E2EArtifactRecorder::formatResponse($response);
         self::assertInstanceOf(WalletInquiryResponse::class, $response->data, $responseDebug);
-        self::assertNotSame('', (string) $response->data->network, $responseDebug);
-        self::assertNotSame('', (string) $response->data->asset, $responseDebug);
-        self::assertNotSame('', (string) $response->data->payTo, $responseDebug);
+        $options = $response->data->paymentOptions;
+        self::assertNotNull($options, $responseDebug);
+        self::assertNotEmpty($options, $responseDebug);
+        foreach ($options as $option) {
+            self::assertNotSame('', (string) $option->network, $responseDebug);
+            self::assertNotSame('', (string) $option->asset, $responseDebug);
+            self::assertNotSame('', (string) $option->payTo, $responseDebug);
+            if ($option->decimals !== null) {
+                self::assertGreaterThanOrEqual(0, $option->decimals, $responseDebug);
+            }
+        }
     }
 
     /** @param array<string, string> $requestIds */

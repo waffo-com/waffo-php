@@ -128,6 +128,76 @@ final class ReadmeExamplesTest extends TestCase
         self::assertTrue($called);
     }
 
+    public function testWalletInquiryExampleExecutesOffline(): void
+    {
+        $keys = FixtureKeys::load();
+        $transport = new FakeHttpTransport(new HttpResponse(
+            200,
+            [],
+            '{"code":"0","msg":"success","data":{"paymentOptions":['
+                . '{"network":"eip155:8453","asset":"asset-base","payTo":"wallet-base","decimals":6},'
+                . '{"network":"eip155:4217","asset":"asset-tempo","payTo":"wallet-tempo","decimals":18}]}}',
+        ));
+        $waffo = new Waffo(new WaffoConfig(
+            'api-key',
+            $keys['privateKey'],
+            $keys['publicKey'],
+            merchantId: 'merchant-id',
+            httpTransport: $transport,
+        ));
+
+        $response = $waffo->wallet()->inquiry(['paymentRequestId' => 'wallet-demo', 'orderCurrency' => 'USDC']);
+
+        self::assertTrue($response->isSuccess());
+        $values = [];
+        foreach ($response->data->paymentOptions ?? [] as $option) {
+            $values[] = [$option->network, $option->asset, $option->payTo, $option->decimals];
+        }
+        self::assertSame([
+            ['eip155:8453', 'asset-base', 'wallet-base', 6],
+            ['eip155:4217', 'asset-tempo', 'wallet-tempo', 18],
+        ], $values);
+    }
+
+    public function testWalletReadmeSnippetExecutesSuccessAndErrorBranches(): void
+    {
+        $keys = FixtureKeys::load();
+        foreach (['README.md', 'README_CN.md'] as $file) {
+            $readme = file_get_contents(__DIR__ . '/../../' . $file);
+            self::assertNotFalse($readme);
+            self::assertSame(1, preg_match(
+                '/(?:### Wallet Address Inquiry \(x402\)|#### 钱包地址查询示例 \(x402\)).*?```php\n(.*?)\n```/s',
+                $readme,
+                $matches,
+            ));
+            $snippet = $matches[1] ?? '';
+            self::assertNotSame('', $snippet);
+            foreach ([
+                '{"code":"0","data":{"paymentOptions":[{"network":"eip155:8453",'
+                    . '"asset":"asset-base","payTo":"wallet-base","decimals":6}]}}' => 'Pay to: wallet-base',
+                '{"code":"A0003","msg":"invalid request"}' => 'Wallet inquiry failed: A0003 invalid request',
+            ] as $body => $expectedOutput) {
+                $transport = new FakeHttpTransport(new HttpResponse(200, [], $body));
+                $waffo = new Waffo(new WaffoConfig(
+                    'api-key',
+                    $keys['privateKey'],
+                    $keys['publicKey'],
+                    merchantId: 'merchant-id',
+                    httpTransport: $transport,
+                ));
+                ob_start();
+                try {
+                    eval('?>' . $snippet);
+                    $output = ob_get_contents();
+                } finally {
+                    ob_end_clean();
+                }
+                self::assertIsString($output);
+                self::assertStringContainsString($expectedOutput, $output);
+            }
+        }
+    }
+
     public function testSubscriptionTopupUpdateExampleExecutesOffline(): void
     {
         $keys = FixtureKeys::load();
@@ -197,4 +267,58 @@ final class ReadmeExamplesTest extends TestCase
         self::assertSame('{"message":"success"}', $result->responseBody);
         self::assertTrue(Rsa::verify($result->responseBody, $result->responseSignature, $keys['publicKey']));
     }
+    /** @return iterable<string, array{string}> */
+    public static function walletResponses(): iterable
+    {
+        yield 'multiple' => ['{"paymentOptions":[{"network":"eip155:8453","asset":"0xasset-base","payTo":"0xreceiver-base","decimals":6},{"network":"eip155:4217","asset":"0xasset-tempo","payTo":"0xreceiver-tempo","decimals":0},{},{"network":null,"asset":null,"payTo":null,"decimals":null}]}'];
+        yield 'empty' => ['{"paymentOptions":[]}'];
+        yield 'missing' => ['{}'];
+        yield 'null' => ['{"paymentOptions":null}'];
+        yield 'zero' => ['{"paymentOptions":[{"decimals":0}]}'];
+        yield 'no-decimals' => ['{"paymentOptions":[{"network":"eip155:8453","asset":"0xasset-base","payTo":"0xreceiver-base"}]}'];
+        yield 'partial' => ['{"paymentOptions":[{"payTo":"0xreceiver-only"}]}'];
+        yield 'unknown' => ['{"paymentOptions":[{"network":"eip155:4217","futureField":"kept"}],"futureResponseField":"kept"}'];
+    }
+
+    /** @dataProvider walletResponses */
+    public function testWalletPaymentOptionsExampleExecutesOffline(string $raw): void
+    {
+        $keys = Rsa::generateKeyPair();
+        $body = '{"code":"0","msg":"success","data":' . $raw . '}';
+        $transport = new FakeHttpTransport(new HttpResponse(
+            200,
+            ['X-SIGNATURE' => [Rsa::sign($body, $keys['privateKey'])]],
+            $body,
+        ));
+        $waffo = new Waffo(new WaffoConfig(
+            'offline',
+            $keys['privateKey'],
+            $keys['publicKey'],
+            merchantId: 'wallet-test',
+            httpTransport: $transport,
+        ));
+        $response = $waffo->wallet()->inquiry(['paymentRequestId' => 'wallet-demo', 'orderCurrency' => 'USDC']);
+        self::assertTrue($response->isSuccess(), $response->code . ': ' . $response->message);
+        self::assertInstanceOf(\Waffo\Model\Generated\WalletInquiryResponse::class, $response->data);
+        $expected = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+        $options = $expected['paymentOptions'] ?? null;
+        if ($options === null) {
+            self::assertNull($response->data->paymentOptions);
+        } else {
+            $parsedOptions = $response->data->paymentOptions;
+            self::assertNotNull($parsedOptions);
+            self::assertCount(count($options), $parsedOptions);
+            foreach ($parsedOptions as $i => $option) {
+                $rawOption = $options[$i];
+                self::assertInstanceOf(\Waffo\Model\Generated\WalletInquiryResponse_PaymentOption::class, $option);
+                foreach (['network', 'asset', 'payTo', 'decimals'] as $field) {
+                    self::assertSame($rawOption[$field] ?? null, $option->{$field});
+                }
+            }
+        }
+        self::assertStringEndsWith('/wallet/inquiry', $transport->requests[0]->url);
+        $request = json_decode($transport->requests[0]->body, true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('wallet-test', $request['merchantInfo']['merchantId']);
+    }
+
 }

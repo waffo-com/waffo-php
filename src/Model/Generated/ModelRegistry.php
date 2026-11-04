@@ -125,6 +125,7 @@ final class ModelRegistry
         'UserInfo' => UserInfo::class,
         'WalletInquiryReq' => WalletInquiryReq::class,
         'WalletInquiryResponse' => WalletInquiryResponse::class,
+        'WalletInquiryResponse.PaymentOption' => WalletInquiryResponse_PaymentOption::class,
         'X402Info' => X402Info::class,
         'create.MerchantInfo' => create_MerchantInfo::class,
         'create.PromotionInfo' => create_PromotionInfo::class,

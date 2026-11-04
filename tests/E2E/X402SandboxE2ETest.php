@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Waffo\Model\Generated\AcqOrderCreatedResponse;
 use Waffo\Model\Generated\AcqOrderInquiry;
 use Waffo\Model\Generated\WalletInquiryResponse;
+use Waffo\Model\Generated\WalletInquiryResponse_PaymentOption;
 use Waffo\Response\ApiResponse;
 use Waffo\Waffo;
 
@@ -44,7 +45,11 @@ final class X402SandboxE2ETest extends TestCase
         $wallet = $this->inquireWallet();
         $expectedPayTo = getenv('WAFFO_X402_PAY_TO');
         self::assertIsString($expectedPayTo);
-        self::assertSame(strtolower($expectedPayTo), strtolower((string) $wallet->payTo));
+        self::assertSame(
+            strtolower($expectedPayTo),
+            strtolower((string) $wallet->payTo),
+            json_encode($wallet->toArray(), JSON_THROW_ON_ERROR),
+        );
     }
 
     public function testHostedChallenge(): void
@@ -57,7 +62,7 @@ final class X402SandboxE2ETest extends TestCase
         $this->verifyDirectMode($this->inquireWallet());
     }
 
-    private function inquireWallet(): WalletInquiryResponse
+    private function inquireWallet(): WalletInquiryResponse_PaymentOption
     {
         $paymentRequestId = E2EFixtures::uniqueId('php_x402_wallet');
         $response = self::$waffo->wallet()->inquiry([
@@ -67,16 +72,23 @@ final class X402SandboxE2ETest extends TestCase
         $this->assertApiSuccess('x402-wallet', 'inquiry', $response, [
             'paymentRequestId' => $paymentRequestId,
         ]);
-        $debug = E2EArtifactRecorder::formatResponse($response);
+        $debug = "paymentRequestId={$paymentRequestId}, response=" . E2EArtifactRecorder::formatResponse($response);
         self::assertInstanceOf(WalletInquiryResponse::class, $response->data, $debug);
-        self::assertSame('eip155:84532', $response->data->network, $debug);
-        self::assertNotSame('', (string) $response->data->asset, $debug);
-        self::assertNotSame('', (string) $response->data->payTo, $debug);
+        $options = $response->data->paymentOptions;
+        self::assertNotNull($options, $debug);
+        self::assertNotEmpty($options, $debug);
+        foreach ($options as $option) {
+            if ($option->network === 'eip155:84532') {
+                self::assertNotSame('', (string) $option->asset, $debug);
+                self::assertNotSame('', (string) $option->payTo, $debug);
 
-        return $response->data;
+                return $option;
+            }
+        }
+        self::fail('Expected configured Base Sepolia payment option: ' . $debug);
     }
 
-    private function verifyHostedMode(WalletInquiryResponse $wallet): void
+    private function verifyHostedMode(WalletInquiryResponse_PaymentOption $wallet): void
     {
         $case = 'x402-hosted-mode';
         $paymentRequestId = E2EFixtures::uniqueId('php_x402_hosted');
@@ -119,7 +131,7 @@ final class X402SandboxE2ETest extends TestCase
         self::assertSame($create->data->acquiringOrderId, $closed->acquiringOrderId, $debug);
     }
 
-    private function verifyDirectMode(WalletInquiryResponse $wallet): void
+    private function verifyDirectMode(WalletInquiryResponse_PaymentOption $wallet): void
     {
         $signature = getenv('WAFFO_X402_PAYMENT_SIGNATURE');
         self::assertIsString($signature);
@@ -207,7 +219,7 @@ final class X402SandboxE2ETest extends TestCase
     {
         $response = self::$waffo->order()->inquiry(['paymentRequestId' => $paymentRequestId]);
         $this->assertApiSuccess($case, $phase, $response, ['paymentRequestId' => $paymentRequestId]);
-        $debug = E2EArtifactRecorder::formatResponse($response);
+        $debug = "paymentRequestId={$paymentRequestId}, response=" . E2EArtifactRecorder::formatResponse($response);
         self::assertInstanceOf(AcqOrderInquiry::class, $response->data, $debug);
 
         return $response->data;
@@ -266,7 +278,7 @@ final class X402SandboxE2ETest extends TestCase
     private function assertChallenge(
         array $challenge,
         string $checkoutUrl,
-        WalletInquiryResponse $wallet,
+        WalletInquiryResponse_PaymentOption $wallet,
     ): void {
         $debug = json_encode($challenge, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         self::assertSame(2, $challenge['x402Version'] ?? null, $debug);
