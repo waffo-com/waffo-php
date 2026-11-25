@@ -125,6 +125,7 @@ final class AcqOrderCreateRequest extends AbstractModel
         'riskData' => ['property' => 'riskData', 'type' => 'AcqOrderRiskData', 'required' => false, 'ref' => 'AcqOrderRiskData', 'itemsRef' => null],
         'x402Info' => ['property' => 'x402Info', 'type' => 'X402Info', 'required' => false, 'ref' => 'X402Info', 'itemsRef' => null],
         'addressInfo' => ['property' => 'addressInfo', 'type' => 'AcqOrderAddressInfo', 'required' => false, 'ref' => 'AcqOrderAddressInfo', 'itemsRef' => null],
+        'mppInfo' => ['property' => 'mppInfo', 'type' => 'MppInfo', 'required' => false, 'ref' => 'MppInfo', 'itemsRef' => null],
     ];
 
     public ?string $paymentRequestId = null;
@@ -151,6 +152,7 @@ final class AcqOrderCreateRequest extends AbstractModel
     public ?AcqOrderRiskData $riskData = null;
     public ?X402Info $x402Info = null;
     public ?AcqOrderAddressInfo $addressInfo = null;
+    public ?MppInfo $mppInfo = null;
 }
 
 final class AcqOrderCreatedResponse extends AbstractModel
@@ -162,6 +164,7 @@ final class AcqOrderCreatedResponse extends AbstractModel
         'orderStatus' => ['property' => 'orderStatus', 'type' => 'string', 'required' => true, 'ref' => null, 'itemsRef' => null],
         'orderAction' => ['property' => 'orderAction', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'x402Info' => ['property' => 'x402Info', 'type' => 'X402Info', 'required' => false, 'ref' => 'X402Info', 'itemsRef' => null],
+        'mppInfo' => ['property' => 'mppInfo', 'type' => 'MppInfo', 'required' => false, 'ref' => 'MppInfo', 'itemsRef' => null],
     ];
 
     public ?string $paymentRequestId = null;
@@ -170,6 +173,7 @@ final class AcqOrderCreatedResponse extends AbstractModel
     public ?string $orderStatus = null;
     public ?string $orderAction = null;
     public ?X402Info $x402Info = null;
+    public ?MppInfo $mppInfo = null;
 }
 
 final class AcqOrderGoodsInfo extends AbstractModel
@@ -224,6 +228,7 @@ final class AcqOrderInquiry extends AbstractModel
         'userCurrency' => ['property' => 'userCurrency', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'x402Info' => ['property' => 'x402Info', 'type' => 'X402Info', 'required' => false, 'ref' => 'X402Info', 'itemsRef' => null],
         'subscriptionInfo' => ['property' => 'subscriptionInfo', 'type' => 'SubscriptionInfo', 'required' => false, 'ref' => 'SubscriptionInfo', 'itemsRef' => null],
+        'mppInfo' => ['property' => 'mppInfo', 'type' => 'MppInfo', 'required' => false, 'ref' => 'MppInfo', 'itemsRef' => null],
     ];
 
     public ?string $paymentRequestId = null;
@@ -252,6 +257,7 @@ final class AcqOrderInquiry extends AbstractModel
     public ?string $userCurrency = null;
     public ?X402Info $x402Info = null;
     public ?SubscriptionInfo $subscriptionInfo = null;
+    public ?MppInfo $mppInfo = null;
 }
 
 final class AcqOrderInquiryRequest extends AbstractModel
@@ -311,6 +317,8 @@ final class AcqOrderPaymentInfo extends AbstractModel
         'payMethodCountry' => ['property' => 'payMethodCountry', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'captureMode' => ['property' => 'captureMode', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'merchantInitiatedMode' => ['property' => 'merchantInitiatedMode', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'receiptTemplateId' => ['property' => 'receiptTemplateId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'setupFutureUsage' => ['property' => 'setupFutureUsage', 'type' => 'bool', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $productName = null;
@@ -327,6 +335,8 @@ final class AcqOrderPaymentInfo extends AbstractModel
     public ?string $payMethodCountry = null;
     public ?string $captureMode = null;
     public ?string $merchantInitiatedMode = null;
+    public ?string $receiptTemplateId = null;
+    public ?bool $setupFutureUsage = null;
 }
 
 final class AcqOrderRefundInquiry extends AbstractModel
@@ -352,6 +362,7 @@ final class AcqOrderRefundInquiry extends AbstractModel
         'userInfo' => ['property' => 'userInfo', 'type' => 'RefundOrderUserInfo', 'required' => false, 'ref' => 'RefundOrderUserInfo', 'itemsRef' => null],
         'refundCompletedAt' => ['property' => 'refundCompletedAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'refundSource' => ['property' => 'refundSource', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'merchantId' => ['property' => 'merchantId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $refundRequestId = null;
@@ -374,6 +385,7 @@ final class AcqOrderRefundInquiry extends AbstractModel
     public ?RefundOrderUserInfo $userInfo = null;
     public ?string $refundCompletedAt = null;
     public ?string $refundSource = null;
+    public ?string $merchantId = null;
 }
 
 final class AcqOrderRefundInquiryRequest extends AbstractModel
@@ -488,6 +500,7 @@ final class AcqSubscriptionCreateRequest extends AbstractModel
         'subscriptionManagementUrl' => ['property' => 'subscriptionManagementUrl', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'extendInfo' => ['property' => 'extendInfo', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'orderExpiredAt' => ['property' => 'orderExpiredAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'paymentTokenData' => ['property' => 'paymentTokenData', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $subscriptionRequest = null;
@@ -513,6 +526,7 @@ final class AcqSubscriptionCreateRequest extends AbstractModel
     public ?string $subscriptionManagementUrl = null;
     public ?string $extendInfo = null;
     public ?string $orderExpiredAt = null;
+    public ?string $paymentTokenData = null;
 }
 
 final class AcqSubscriptionCreateRequest_AddressInfo extends AbstractModel
@@ -578,6 +592,9 @@ final class AcqSubscriptionCreateRequest_PaymentInfo extends AbstractModel
         'payMethodUserAccessToken' => ['property' => 'payMethodUserAccessToken', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'cashierLanguage' => ['property' => 'cashierLanguage', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'cashierAppearance' => ['property' => 'cashierAppearance', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'userPaymentAccessToken' => ['property' => 'userPaymentAccessToken', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'receiptTemplateId' => ['property' => 'receiptTemplateId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'payMethodCountry' => ['property' => 'payMethodCountry', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $productName = null;
@@ -589,6 +606,9 @@ final class AcqSubscriptionCreateRequest_PaymentInfo extends AbstractModel
     public ?string $payMethodUserAccessToken = null;
     public ?string $cashierLanguage = null;
     public ?string $cashierAppearance = null;
+    public ?string $userPaymentAccessToken = null;
+    public ?string $receiptTemplateId = null;
+    public ?string $payMethodCountry = null;
 }
 
 final class AcqSubscriptionCreateRequest_ProductInfo extends AbstractModel
@@ -650,6 +670,8 @@ final class AcqSubscriptionCreateRequest_UserInfo extends AbstractModel
         'userFirstName' => ['property' => 'userFirstName', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'userLastName' => ['property' => 'userLastName', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'userCreatedAt' => ['property' => 'userCreatedAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'userBrowserIp' => ['property' => 'userBrowserIp', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'userAgent' => ['property' => 'userAgent', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $userId = null;
@@ -659,6 +681,8 @@ final class AcqSubscriptionCreateRequest_UserInfo extends AbstractModel
     public ?string $userFirstName = null;
     public ?string $userLastName = null;
     public ?string $userCreatedAt = null;
+    public ?string $userBrowserIp = null;
+    public ?string $userAgent = null;
 }
 
 final class AcqSubscriptionCreateResponse extends AbstractModel
@@ -943,6 +967,19 @@ final class MessageDto extends AbstractModel
     public ?string $documents = null;
 }
 
+final class MppInfo extends AbstractModel
+{
+    public const SCHEMA = [
+        'mppRequest' => ['property' => 'mppRequest', 'type' => 'bool', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'authorizationHeader' => ['property' => 'authorizationHeader', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'mppResponse' => ['property' => 'mppResponse', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+    ];
+
+    public ?bool $mppRequest = null;
+    public ?string $authorizationHeader = null;
+    public ?string $mppResponse = null;
+}
+
 final class OrderCaptureRequest extends AbstractModel
 {
     public const SCHEMA = [
@@ -1054,6 +1091,7 @@ final class PayMethodDetail extends AbstractModel
         'orderAmountMin' => ['property' => 'orderAmountMin', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'orderAmountMax' => ['property' => 'orderAmountMax', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'refundAllowed' => ['property' => 'refundAllowed', 'type' => 'int', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'userCurrency' => ['property' => 'userCurrency', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $productName = null;
@@ -1068,6 +1106,7 @@ final class PayMethodDetail extends AbstractModel
     public ?string $orderAmountMin = null;
     public ?string $orderAmountMax = null;
     public ?int $refundAllowed = null;
+    public ?string $userCurrency = null;
 }
 
 final class PayeeInfo extends AbstractModel
@@ -1114,6 +1153,8 @@ final class PaymentDetail extends AbstractModel
         'orderStatus' => ['property' => 'orderStatus', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'orderUpdatedAt' => ['property' => 'orderUpdatedAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'period' => ['property' => 'period', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupDetails' => ['property' => 'topupDetails', 'type' => 'array', 'required' => false, 'ref' => null, 'itemsRef' => 'SubscriptionInquiryResponse.TopupDetail'],
+        'repaymentDetails' => ['property' => 'repaymentDetails', 'type' => 'array', 'required' => false, 'ref' => null, 'itemsRef' => 'SubscriptionInquiryResponse.RepaymentDetail'],
     ];
 
     public ?string $acquiringOrderId = null;
@@ -1122,6 +1163,10 @@ final class PaymentDetail extends AbstractModel
     public ?string $orderStatus = null;
     public ?string $orderUpdatedAt = null;
     public ?string $period = null;
+    /** @var list<SubscriptionInquiryResponse_TopupDetail>|null */
+    public ?array $topupDetails = null;
+    /** @var list<SubscriptionInquiryResponse_RepaymentDetail>|null */
+    public ?array $repaymentDetails = null;
 }
 
 final class PaymentInfo extends AbstractModel
@@ -1136,6 +1181,7 @@ final class PaymentInfo extends AbstractModel
         'payMethodUserAccountNo' => ['property' => 'payMethodUserAccountNo', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'payMethodPublicUid' => ['property' => 'payMethodPublicUid', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'payMethodUserAccessToken' => ['property' => 'payMethodUserAccessToken', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'payMethodCountry' => ['property' => 'payMethodCountry', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $productName = null;
@@ -1147,6 +1193,7 @@ final class PaymentInfo extends AbstractModel
     public ?string $payMethodUserAccountNo = null;
     public ?string $payMethodPublicUid = null;
     public ?string $payMethodUserAccessToken = null;
+    public ?string $payMethodCountry = null;
 }
 
 final class PayoutInfo extends AbstractModel
@@ -1623,11 +1670,13 @@ final class SubscriptionCancelRequest extends AbstractModel
         'subscriptionId' => ['property' => 'subscriptionId', 'type' => 'string', 'required' => true, 'ref' => null, 'itemsRef' => null],
         'merchantId' => ['property' => 'merchantId', 'type' => 'string', 'required' => true, 'ref' => null, 'itemsRef' => null],
         'requestedAt' => ['property' => 'requestedAt', 'type' => 'string', 'required' => true, 'ref' => null, 'itemsRef' => null],
+        'scheduledCancelAt' => ['property' => 'scheduledCancelAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $subscriptionId = null;
     public ?string $merchantId = null;
     public ?string $requestedAt = null;
+    public ?string $scheduledCancelAt = null;
 }
 
 final class SubscriptionCancelResponse extends AbstractModel
@@ -1637,12 +1686,14 @@ final class SubscriptionCancelResponse extends AbstractModel
         'subscriptionRequest' => ['property' => 'subscriptionRequest', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'subscriptionId' => ['property' => 'subscriptionId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'orderStatus' => ['property' => 'orderStatus', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'scheduledCancelAt' => ['property' => 'scheduledCancelAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $merchantSubscriptionId = null;
     public ?string $subscriptionRequest = null;
     public ?string $subscriptionId = null;
     public ?string $orderStatus = null;
+    public ?string $scheduledCancelAt = null;
 }
 
 final class SubscriptionChangeInquiryRequest extends AbstractModel
@@ -1765,6 +1816,7 @@ final class SubscriptionChangeInquiryResponse_PaymentInfo extends AbstractModel
         'payMethodUserAccessToken' => ['property' => 'payMethodUserAccessToken', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'cashierAppearance' => ['property' => 'cashierAppearance', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'cashierLogoId' => ['property' => 'cashierLogoId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'payMethodCountry' => ['property' => 'payMethodCountry', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $productName = null;
@@ -1776,6 +1828,7 @@ final class SubscriptionChangeInquiryResponse_PaymentInfo extends AbstractModel
     public ?string $payMethodUserAccessToken = null;
     public ?string $cashierAppearance = null;
     public ?string $cashierLogoId = null;
+    public ?string $payMethodCountry = null;
 }
 
 final class SubscriptionChangeInquiryResponse_ProductInfo extends AbstractModel
@@ -1945,6 +1998,8 @@ final class SubscriptionChangeRequest_PaymentInfo extends AbstractModel
         'payMethodUserAccountNo' => ['property' => 'payMethodUserAccountNo', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'payMethodUserAccessToken' => ['property' => 'payMethodUserAccessToken', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
         'cashierAppearance' => ['property' => 'cashierAppearance', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'payMethodCountry' => ['property' => 'payMethodCountry', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'cashierLanguage' => ['property' => 'cashierLanguage', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $productName = null;
@@ -1955,6 +2010,8 @@ final class SubscriptionChangeRequest_PaymentInfo extends AbstractModel
     public ?string $payMethodUserAccountNo = null;
     public ?string $payMethodUserAccessToken = null;
     public ?string $cashierAppearance = null;
+    public ?string $payMethodCountry = null;
+    public ?string $cashierLanguage = null;
 }
 
 final class SubscriptionChangeRequest_ProductInfo extends AbstractModel
@@ -2054,11 +2111,15 @@ final class SubscriptionInfo extends AbstractModel
         'subscriptionId' => ['property' => 'subscriptionId', 'type' => 'string', 'required' => true, 'ref' => null, 'itemsRef' => null],
         'period' => ['property' => 'period', 'type' => 'string', 'required' => true, 'ref' => null, 'itemsRef' => null],
         'subscriptionRequest' => ['property' => 'subscriptionRequest', 'type' => 'string', 'required' => true, 'ref' => null, 'itemsRef' => null],
+        'merchantRequest' => ['property' => 'merchantRequest', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'subscriptionEvent' => ['property' => 'subscriptionEvent', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $subscriptionId = null;
     public ?string $period = null;
     public ?string $subscriptionRequest = null;
+    public ?string $merchantRequest = null;
+    public ?string $subscriptionEvent = null;
 }
 
 final class SubscriptionInquiryRequest extends AbstractModel
@@ -2099,6 +2160,7 @@ final class SubscriptionInquiryResponse extends AbstractModel
         'paymentDetails' => ['property' => 'paymentDetails', 'type' => 'array', 'required' => false, 'ref' => null, 'itemsRef' => 'PaymentDetail'],
         'goodsInfo' => ['property' => 'goodsInfo', 'type' => 'GoodsInfo', 'required' => false, 'ref' => 'GoodsInfo', 'itemsRef' => null],
         'addressInfo' => ['property' => 'addressInfo', 'type' => 'AddressInfo', 'required' => false, 'ref' => 'AddressInfo', 'itemsRef' => null],
+        'scheduledCancelAt' => ['property' => 'scheduledCancelAt', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
     ];
 
     public ?string $subscriptionRequest = null;
@@ -2124,6 +2186,41 @@ final class SubscriptionInquiryResponse extends AbstractModel
     public ?array $paymentDetails = null;
     public ?GoodsInfo $goodsInfo = null;
     public ?AddressInfo $addressInfo = null;
+    public ?string $scheduledCancelAt = null;
+}
+
+final class SubscriptionInquiryResponse_RepaymentDetail extends AbstractModel
+{
+    public const SCHEMA = [
+        'acquiringOrderId' => ['property' => 'acquiringOrderId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'requestId' => ['property' => 'requestId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'repaymentAmount' => ['property' => 'repaymentAmount', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'orderCurrency' => ['property' => 'orderCurrency', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'orderStatus' => ['property' => 'orderStatus', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+    ];
+
+    public ?string $acquiringOrderId = null;
+    public ?string $requestId = null;
+    public ?string $repaymentAmount = null;
+    public ?string $orderCurrency = null;
+    public ?string $orderStatus = null;
+}
+
+final class SubscriptionInquiryResponse_TopupDetail extends AbstractModel
+{
+    public const SCHEMA = [
+        'acquiringOrderId' => ['property' => 'acquiringOrderId', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupRequest' => ['property' => 'topupRequest', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'topupAmount' => ['property' => 'topupAmount', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'orderCurrency' => ['property' => 'orderCurrency', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+        'orderStatus' => ['property' => 'orderStatus', 'type' => 'string', 'required' => false, 'ref' => null, 'itemsRef' => null],
+    ];
+
+    public ?string $acquiringOrderId = null;
+    public ?string $topupRequest = null;
+    public ?string $topupAmount = null;
+    public ?string $orderCurrency = null;
+    public ?string $orderStatus = null;
 }
 
 final class SubscriptionManageRequest extends AbstractModel

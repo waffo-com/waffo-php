@@ -17,8 +17,8 @@ final class ReadmeExamplesTest extends TestCase
     /** @return iterable<string, array{string, positive-int}> */
     public static function packageReadmes(): iterable
     {
-        yield 'English' => [__DIR__ . '/../../README.md', 33];
-        yield 'Chinese' => [__DIR__ . '/../../README_CN.md', 33];
+        yield 'English' => [__DIR__ . '/../../README.md', 34];
+        yield 'Chinese' => [__DIR__ . '/../../README_CN.md', 34];
     }
 
     /** @dataProvider packageReadmes */
@@ -81,7 +81,7 @@ final class ReadmeExamplesTest extends TestCase
             $content = file_get_contents(__DIR__ . '/' . $relative);
             self::assertNotFalse($content);
             preg_match_all('/<!-- tabs:start -->([\s\S]*?)<!-- tabs:end -->/', $content, $matches);
-            self::assertCount(31, $matches[1]);
+            self::assertCount(32, $matches[1]);
             foreach ($matches[1] as $index => $tabs) {
                 self::assertMatchesRegularExpression('/####\s*\*\*PHP\*\*/', $tabs, "tabs block {$index}");
             }
@@ -126,6 +126,53 @@ final class ReadmeExamplesTest extends TestCase
             ->handleWebhook($body, Rsa::sign($body, $keys['privateKey']));
         self::assertTrue($webhook->success);
         self::assertTrue($called);
+    }
+
+    public function testPublicQueryFieldsExecuteOffline(): void
+    {
+        $keys = FixtureKeys::load();
+        $transport = new FakeHttpTransport(
+            new HttpResponse(
+                200,
+                [],
+                '{"code":"0","data":{"subscriptionInfo":{"subscriptionId":"sub","subscriptionRequest":"sub-req","period":"1",'
+                    . '"merchantRequest":"sub-req","subscriptionEvent":"PERIOD_CHARGE"},'
+                    . '"paymentInfo":{"setupFutureUsage":false},"mppInfo":{"mppResponse":"demo-receipt"}}}',
+            ),
+            new HttpResponse(
+                200,
+                [],
+                '{"code":"0","data":{"paymentDetails":[{"topupDetails":[{"topupRequest":"topup"}],'
+                    . '"repaymentDetails":[{"requestId":"repay"}]}]}}',
+            ),
+        );
+        $waffo = new Waffo(new WaffoConfig(
+            'api-key',
+            $keys['privateKey'],
+            $keys['publicKey'],
+            merchantId: 'merchant-id',
+            httpTransport: $transport,
+        ));
+
+        $order = $waffo->order()->inquiry(['acquiringOrderId' => 'order-id']);
+        self::assertTrue($order->isSuccess());
+        self::assertInstanceOf(\Waffo\Model\Generated\AcqOrderInquiry::class, $order->data);
+        self::assertNotNull($order->data->subscriptionInfo);
+        self::assertSame('1', $order->data->subscriptionInfo->period);
+        self::assertSame('sub-req', $order->data->subscriptionInfo->merchantRequest);
+        self::assertSame('PERIOD_CHARGE', $order->data->subscriptionInfo->subscriptionEvent);
+        self::assertFalse($order->data->paymentInfo?->setupFutureUsage);
+        self::assertSame('demo-receipt', $order->data->mppInfo?->mppResponse);
+
+        $subscription = $waffo->subscription()->inquiry(['subscriptionId' => 'sub', 'paymentDetails' => 1]);
+        self::assertTrue($subscription->isSuccess());
+        self::assertInstanceOf(\Waffo\Model\Generated\SubscriptionInquiryResponse::class, $subscription->data);
+        self::assertNotEmpty($subscription->data->paymentDetails);
+        $period = $subscription->data->paymentDetails[0];
+        self::assertNotEmpty($period->topupDetails);
+        self::assertNotEmpty($period->repaymentDetails);
+        self::assertSame('topup', $period->topupDetails[0]->topupRequest);
+        self::assertSame('repay', $period->repaymentDetails[0]->requestId);
     }
 
     public function testWalletInquiryExampleExecutesOffline(): void

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0] - 2026-11-25
+
+### Added
+
+- Expose subscription event details in order inquiry, scheduled cancellations, and top-up and repayment details in subscription inquiry.
+- Expose MPP fields in order creation and inquiry, the merchant ID in refund inquiry, and user currency in payment method configuration.
+
 ## [0.5.0] - 2026-11-04
 
 ### Changed

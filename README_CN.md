@@ -44,6 +44,7 @@ Waffo SDK 是 [Waffo 支付平台](https://www.waffo.com) 的**官方 SDK 集合
 - [快速开始](#快速开始)
 - [环境配置](#环境配置)
 - [API 概览](#api-概览)
+  - [支付与订阅 API 字段](#支付与订阅-api-字段)
 - [Webhook 处理](#webhook-处理)
 - [支付方式类型](#支付方式类型)
 - [高级配置](#高级配置)（含[配置 DNS 缓存 TTL](#配置-dns-缓存-ttl)）
@@ -567,6 +568,33 @@ $response = $waffo->payMethodConfig()->inquiry(['merchantId' => 'merchant-id']);
 if ($response->isSuccess()) {
     var_dump($response->data);
 }
+```
+
+### 支付与订阅 API 字段
+
+通过 SDK 的现有方法可以读写以下字段。响应字段按订单或订阅的实际情况返回。
+
+| 方法 | 字段 |
+|---|---|
+| 创建与查询订单 | `paymentInfo.receiptTemplateId`、`paymentInfo.setupFutureUsage`、`mppInfo`。订阅支付订单的查询响应中，`subscriptionInfo` 可包含 `merchantRequest` 和 `subscriptionEvent`。 |
+| 查询退款 | `merchantId`。 |
+| 创建订阅 | `paymentTokenData`、`userInfo.userBrowserIp`、`userInfo.userAgent`、`paymentInfo.userPaymentAccessToken`、`paymentInfo.receiptTemplateId`、`paymentInfo.payMethodCountry`。 |
+| 查询订阅、变更订阅与查询变更 | `paymentInfo.payMethodCountry`。变更请求还可以传 `paymentInfo.cashierLanguage`。订阅查询返回 `scheduledCancelAt`，传入 `paymentDetails: 1` 后，每期明细可包含 `topupDetails` 和 `repaymentDetails`。 |
+| 取消订阅 | 请求与响应中的 `scheduledCancelAt`。 |
+| 查询支付方式配置 | `payMethodDetails[].userCurrency`。 |
+
+示例使用已初始化的客户端，以及一笔订阅支付订单的收单订单号。`subscriptionEvent` 的已知值包括 `PERIOD_CHARGE` 和 `USER_ADD_PAYMENT_METHOD`。
+
+```php
+<?php
+
+$result = $waffo->order()->inquiry(['acquiringOrderId' => 'acquiring_order_id']);
+if (!$result->isSuccess()) {
+    throw new RuntimeException($result->code);
+}
+$subscription = $result->data?->subscriptionInfo;
+echo $subscription?->merchantRequest ?? '', PHP_EOL;
+echo $subscription?->subscriptionEvent ?? '', PHP_EOL;
 ```
 
 #### 钱包地址查询示例 (x402)

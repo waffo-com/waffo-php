@@ -1389,6 +1389,20 @@
           "period": {
             "type": "string",
             "description": "Which period the subscription payment belong to. For example 2"
+          },
+          "topupDetails": {
+            "type": "array",
+            "description": "The array object of seat add-on (top-up) orders accepted in this period; absent when the period has none",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionInquiryResponse.TopupDetail"
+            }
+          },
+          "repaymentDetails": {
+            "type": "array",
+            "description": "The array object of repayment orders raised for this period; absent when the period has none",
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionInquiryResponse.RepaymentDetail"
+            }
           }
         }
       },
@@ -1447,6 +1461,12 @@
             "type": "string",
             "description": "User access token is required when using MINI_PROGRAM_SUBSCRIPTION product\nThe user access token can be obtained from mini program API\n",
             "maxLength": 128,
+            "minLength": 0
+          },
+          "payMethodCountry": {
+            "type": "string",
+            "description": "Some pay methods are available in multiple countries (e.g. GrabPay, ShopeePay). The pay method country specified by merchant on subscription creation.\n",
+            "maxLength": 3,
             "minLength": 0
           }
         },
@@ -1656,6 +1676,10 @@
           "addressInfo": {
             "$ref": "#/components/schemas/AddressInfo",
             "description": "Address Information"
+          },
+          "scheduledCancelAt": {
+            "type": "string",
+            "description": "The time when the cancellation takes effect, in ISO 8601. Present when a cancellation has been scheduled. "
           }
         }
       },
@@ -1837,6 +1861,12 @@
             "type": "string",
             "format": "date-time",
             "description": "The order expiry time set by merchant. User is required to input payment data on Waffo cashier page prior to merchant's order expiry time. \nIf not provided, the default is 4 hours\n"
+          },
+          "paymentTokenData": {
+            "type": "string",
+            "description": "Wallet payment token data returned by Apple Pay / Google Pay after user authorization.\nCarrying it (or paymentInfo.userPaymentAccessToken) charges the first period directly without redirecting to the cashier.\n",
+            "maxLength": 8192,
+            "minLength": 0
           }
         },
         "required": [
@@ -2025,6 +2055,24 @@
           "cashierAppearance": {
             "type": "string",
             "description": "Defines the overall appearance configuration of the UI, including colors, background, and typography settings.\n                   A JSON-formatted string containing theme variables.\n                   These variables are injected into the UI rendering layer and override the default theme settings.\n                   This field must be a valid JSON string, not a plain object.\n                   Example:  {\"variables\":{\"colorPrimary\":\"#0570de\",\"colorBackground\":\"#ffffff\",\"colorText\":\"#30313d\"}}\n"
+          },
+          "userPaymentAccessToken": {
+            "type": "string",
+            "description": "Card token produced by the card Element or an existing saved-card token.\nCarrying it (or the top-level paymentTokenData) charges the first period directly without redirecting to the cashier;\nit is stored on the subscription and reused by renewals.\n",
+            "maxLength": 128,
+            "minLength": 0
+          },
+          "receiptTemplateId": {
+            "type": "string",
+            "description": "Merchant specify the receipt template id",
+            "maxLength": 32,
+            "minLength": 0
+          },
+          "payMethodCountry": {
+            "type": "string",
+            "description": "Some pay methods are available in multiple countries (e.g. GrabPay, ShopeePay). The merchant shall specify the pay method country when necessary.\n",
+            "maxLength": 3,
+            "minLength": 0
           }
         },
         "required": [
@@ -2214,6 +2262,18 @@
             "type": "string",
             "format": "date-time",
             "description": "Merchant user creation time"
+          },
+          "userBrowserIp": {
+            "type": "string",
+            "description": "Merchant user browser IP address. This field is only required when merchant pass in applepay/googlepay data (paymentTokenData) directly in API",
+            "maxLength": 128,
+            "minLength": 0
+          },
+          "userAgent": {
+            "type": "string",
+            "description": "Merchant user browser agent. This field is only required when merchant pass in applepay/googlepay data (paymentTokenData) directly in API",
+            "maxLength": 256,
+            "minLength": 0
           }
         },
         "required": [
@@ -2629,6 +2689,18 @@
           "cashierAppearance": {
             "type": "string",
             "description": "Defines the overall appearance configuration of the UI, including colors, background, and typography settings. A JSON-formatted string containing theme variables."
+          },
+          "payMethodCountry": {
+            "type": "string",
+            "description": "Some pay methods are available in multiple countries (e.g. GrabPay, ShopeePay). The merchant shall specify the pay method country when necessary.\n",
+            "maxLength": 3,
+            "minLength": 0
+          },
+          "cashierLanguage": {
+            "type": "string",
+            "description": "Merchant specify the cashier language. It follows IETF BCP 47 language tag\nThe format is Language (two-letter language code from ISO 639-1), follow by an optional script subtag, based on a four-letter script code from ISO 15924, and follow by an optional region subtag based on a two-letter country code from ISO 3166-1 alpha-2\nFor example:\n- en-HK: English in Hong Kong\n- zh-Hant-HK: Traditional Chinese in Hong Kong\n- zh-Hans-HK: Simplified Chinese in Hong Kong\n",
+            "maxLength": 24,
+            "minLength": 0
           }
         },
         "required": [
@@ -3197,6 +3269,12 @@
           "cashierLogoId": {
             "type": "string",
             "description": "Cashier Logo Id"
+          },
+          "payMethodCountry": {
+            "type": "string",
+            "description": "Some pay methods are available in multiple countries (e.g. GrabPay, ShopeePay). The pay method country specified by merchant on subscription change.\n",
+            "maxLength": 3,
+            "minLength": 0
           }
         },
         "required": [
@@ -3349,6 +3427,12 @@
             "format": "date-time",
             "description": "Merchant-side cancel request time",
             "x-gen": "DATETIME_ISO"
+          },
+          "scheduledCancelAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Schedule the cancellation at this time instead of cancelling immediately. Leave it empty to cancel immediately.\nMust not be later than the subscription end time. If the subscription has no end time, it must be within 2 years from now.\nContact Waffo technical support to enable this field before using it.\n",
+            "x-gen": "DATETIME_ISO"
           }
         },
         "required": [
@@ -3392,6 +3476,10 @@
           "orderStatus": {
             "type": "string",
             "description": "- CLOSE (due to timeout or failed)\n- MERCHANT_CANCELLED\n- CHANNEL_CANCELLED\n- EXPIRED \n"
+          },
+          "scheduledCancelAt": {
+            "type": "string",
+            "description": "The time when the cancellation takes effect, in ISO 8601. Returned when the cancellation is scheduled instead of immediate. "
           }
         }
       },
@@ -3493,6 +3581,10 @@
           "refundSource": {
             "type": "string",
             "description": "Refund Source\n**MERCHANT**: Indicates the refund is triggered by the Merchant.\n**RDR**: Indicates the refund is triggered by the chargeback alert service via vendor RDR.\n**ETHOCA**: Indicates the refund is triggered by the chargeback alert service via vendor Ethoca.\n"
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "Merchant Id assigned by Waffo"
           }
         },
         "required": [
@@ -3656,6 +3748,14 @@
           "subscriptionRequest": {
             "type": "string",
             "description": "Subscription request id sent from Merchant. It will also be used for idempotent check. "
+          },
+          "merchantRequest": {
+            "type": "string",
+            "description": "Subscription request id sent from Merchant. It will also be used for idempotent check. "
+          },
+          "subscriptionEvent": {
+            "type": "string",
+            "description": "Subscription event: PERIOD_CHARGE / USER_ADD_PAYMENT_METHOD"
           }
         },
         "required": [
@@ -4106,6 +4206,10 @@
             "type": "integer",
             "format": "int32",
             "description": "The refund policy of the pay method\n- **0** - Refund is not allowed\n- **1** - Full refund is allowed\n- **21** - Partial refund is allowed, single time\n- **22** - Partial refund is allowed, multiple times"
+          },
+          "userCurrency": {
+            "type": "string",
+            "description": "The currency the user actually pays in with this pay method (ISO 4217). Same as currency unless the contract is cross-currency, e.g. currency is USD and userCurrency is PHP. e.g. PHP, IDR"
           }
         },
         "required": [
@@ -4502,6 +4606,10 @@
           },
           "subscriptionInfo": {
             "$ref": "#/components/schemas/SubscriptionInfo"
+          },
+          "mppInfo": {
+            "$ref": "#/components/schemas/MppInfo",
+            "description": "MPP stablecoin payment info. Present for MPP orders in any status; carries mppResponse (base64url MPP receipt) only when orderStatus = PAY_SUCCESS."
           }
         },
         "required": [
@@ -4678,6 +4786,16 @@
             "description": "Specify when it is a merchant initiated transaction (mit) without customer involvement. userPaymentAccessToken is also required for mit transaction\n- scheduled\n- unscheduled\n",
             "maxLength": 24,
             "minLength": 0
+          },
+          "receiptTemplateId": {
+            "type": "string",
+            "description": "Merchant specify the receipt template id",
+            "maxLength": 32,
+            "minLength": 0
+          },
+          "setupFutureUsage": {
+            "type": "boolean",
+            "description": "Indicate that this payment shall also set up (tokenize) the payment method for future merchant initiated transactions (mit).\nWhen true, only pay methods capable of mit are offered.\nAfter this customer initiated payment succeeds, the payment method is tokenized; reuse the resulting token as userPaymentAccessToken, together with merchantInitiatedMode, to initiate a later mit.\nWhen setupFutureUsage is used, do not provide userPaymentAccessToken.\nFor how the token is obtained and reused for mit, refer to [Waffo Tokenization Overview](https://waffo.com/docs/zh/developer-docs/integration/tokenization/overview).\n"
           }
         },
         "required": [
@@ -4908,6 +5026,10 @@
           "addressInfo": {
             "$ref": "#/components/schemas/AcqOrderAddressInfo",
             "description": "Address Information"
+          },
+          "mppInfo": {
+            "$ref": "#/components/schemas/MppInfo",
+            "description": "MPP stablecoin payment info. mppInfo.mppRequest=true marks an MPP payin; mppInfo.authorizationHeader carries the Agent's Payment credential."
           }
         },
         "required": [
@@ -5050,6 +5172,10 @@
           "x402Info": {
             "$ref": "#/components/schemas/X402Info",
             "description": "x402 stablecoin payment info. Mode① echoes x402Request / paymentSignatureHeader and adds x402Response (base64 SettlementResponse) when orderStatus = PAY_SUCCESS."
+          },
+          "mppInfo": {
+            "$ref": "#/components/schemas/MppInfo",
+            "description": "MPP stablecoin payment info. Echoes mppRequest / authorizationHeader for MPP orders and adds mppResponse (base64url MPP receipt) when orderStatus = PAY_SUCCESS."
           }
         },
         "required": [
@@ -5770,6 +5896,79 @@
           "chargebackId",
           "merchantId"
         ]
+      },
+      "MppInfo": {
+        "type": "object",
+        "description": "MPP stablecoin payment info envelope",
+        "properties": {
+          "mppRequest": {
+            "type": "boolean",
+            "description": "Whether this is an MPP stablecoin payment request",
+            "example": true
+          },
+          "authorizationHeader": {
+            "type": "string",
+            "description": "The Agent's Payment credential: auth-scheme \"Payment\" followed by the base64url credential. Forward only this credential, never other credentials in the same header.",
+            "example": "Payment eyJjaGFsbGVuZ2UiOnsiaWQiOiJ...",
+            "maxLength": 4096,
+            "minLength": 0
+          },
+          "mppResponse": {
+            "type": "string",
+            "description": "Response only. base64url (no padding) MPP receipt with status / method / timestamp / reference, returned when orderStatus = PAY_SUCCESS and the on-chain details are complete. Put it in the Payment-Receipt response header as is.",
+            "example": "eyJtZXRob2QiOiJ0ZW1wbyIsInJlZmVyZW5jZSI6IjB4NWYyYy4uLiJ9"
+          }
+        }
+      },
+      "SubscriptionInquiryResponse.TopupDetail": {
+        "type": "object",
+        "properties": {
+          "acquiringOrderId": {
+            "type": "string",
+            "description": "Waffo acquiring order Id of the top-up order"
+          },
+          "topupRequest": {
+            "type": "string",
+            "description": "Merchant top-up request Id (idempotency key of the seat add-on)"
+          },
+          "topupAmount": {
+            "type": "string",
+            "description": "Top-up amount charged in the current period"
+          },
+          "orderCurrency": {
+            "type": "string",
+            "description": "Top-up order currency"
+          },
+          "orderStatus": {
+            "type": "string",
+            "description": "Top-up order status"
+          }
+        }
+      },
+      "SubscriptionInquiryResponse.RepaymentDetail": {
+        "type": "object",
+        "properties": {
+          "acquiringOrderId": {
+            "type": "string",
+            "description": "Waffo acquiring order Id of the repayment order"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Repayment request Id (idempotency key of the repayment)"
+          },
+          "repaymentAmount": {
+            "type": "string",
+            "description": "Repayment amount charged for the failed period"
+          },
+          "orderCurrency": {
+            "type": "string",
+            "description": "Repayment order currency"
+          },
+          "orderStatus": {
+            "type": "string",
+            "description": "Repayment order status"
+          }
+        }
       }
     }
   },

@@ -50,6 +50,7 @@ Waffo SDK is the **official SDK collection** for [Waffo Payment Platform](https:
   - [Subscription Change (Upgrade/Downgrade)](#subscription-change-upgradedowngrade)
   - [Refund Query](#refund-query)
   - [Merchant Configuration](#merchant-configuration)
+  - [Payment and Subscription API Fields](#payment-and-subscription-api-fields)
   - [Wallet Address Inquiry (x402)](#wallet-address-inquiry-x402)
 - [Webhook Handling](#webhook-handling)
 - [Payment Method Types](#payment-method-types)
@@ -551,6 +552,33 @@ $response = $waffo->payMethodConfig()->inquiry(['merchantId' => 'merchant-id']);
 if ($response->isSuccess()) {
     var_dump($response->data);
 }
+```
+
+### Payment and Subscription API Fields
+
+The SDK exposes these fields through the existing methods. Response fields are returned when applicable to the order or subscription.
+
+| Method | Fields |
+|---|---|
+| Order create and inquiry | `paymentInfo.receiptTemplateId`, `paymentInfo.setupFutureUsage`, and `mppInfo`. Inquiry also returns `subscriptionInfo` with `merchantRequest` and `subscriptionEvent`. |
+| Refund inquiry | `merchantId`. |
+| Subscription create | `paymentTokenData`, `userInfo.userBrowserIp`, `userInfo.userAgent`, `paymentInfo.userPaymentAccessToken`, `paymentInfo.receiptTemplateId`, and `paymentInfo.payMethodCountry`. |
+| Subscription inquiry, change, and change inquiry | `paymentInfo.payMethodCountry`. A change request can also carry `paymentInfo.cashierLanguage`. Inquiry returns `scheduledCancelAt` and, with `paymentDetails: 1`, can include `topupDetails` and `repaymentDetails` for each period. |
+| Subscription cancel | `scheduledCancelAt` in the request and response. |
+| Pay method config inquiry | `payMethodDetails[].userCurrency`. |
+
+The example uses an initialized client and a subscription payment's acquiring order ID. Examples of `subscriptionEvent` include `PERIOD_CHARGE` and `USER_ADD_PAYMENT_METHOD`.
+
+```php
+<?php
+
+$result = $waffo->order()->inquiry(['acquiringOrderId' => 'acquiring_order_id']);
+if (!$result->isSuccess()) {
+    throw new RuntimeException($result->code);
+}
+$subscription = $result->data?->subscriptionInfo;
+echo $subscription?->merchantRequest ?? '', PHP_EOL;
+echo $subscription?->subscriptionEvent ?? '', PHP_EOL;
 ```
 
 ### Wallet Address Inquiry (x402)
